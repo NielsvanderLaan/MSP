@@ -1,25 +1,23 @@
 #include "master.h"
 
-Cut Master::compute_cut(Solution &sol)
+Cut Master::compute_cut(Solution const &sol)
 {
   update(sol);
-  optimize();
+  solve_lp();
   arma::vec pi = multipliers();
 
-  size_t nlevels = sol.depth();
+  size_t nlevels = d_data.d_stage - 1;
   size_t ncuts = d_cuts.size();
 
   vvec beta(nlevels);
   vdouble tau(nlevels, 0.0);
   double alpha = obj();
 
-  assert(nlevels == d_data.d_stage - 1);
-
   for (int level = 0; level != nlevels; ++level)
     beta[level] = arma::vec(sol.d_x[level].n_elem, arma::fill::zeros);
 
   arma::vec lambda(pi.memptr(), d_data.ncons(), false);   // constraint multipliers
-  beta[0] = d_data.d_Bmat * lambda;
+  beta[beta.size() - 1] = d_data.d_Bmat * lambda;
 
   double *mu = pi.memptr() + d_data.ncons();          // cut multipliers
 

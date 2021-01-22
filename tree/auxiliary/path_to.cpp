@@ -12,5 +12,6 @@ vector<int> Tree::path_to(int id)
     node = d_ancestor[node];
   }
 
+  reverse(ret.begin(), ret.end());
   return ret;
 }

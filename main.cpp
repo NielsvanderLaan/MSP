@@ -14,24 +14,39 @@ int main()
   GRBEnv env;
   env.set(GRB_IntParam_OutputFlag, 0);
 
-  Tree tree= ssv();
+  Tree tree = ssv();
 
   tree.init_decom(env);
 
   Master &master = tree.d_masters[0];
   while (true)
   {
-    master.optimize();
+    master.solve_lp();
 
-    Solution sol{vvec{master.xvals()}, vdouble{master.theta()}};
+    Solution sol{vvec{master.lp_xvals()}, vdouble{master.lp_theta()}};
 
     Cut cut = tree.lp_cut(0, sol);
 
     if (not tree.add_cut(0, cut, sol))
       break;
   }
-
   cout << master.obj() << '\n';
+
+
+  while (true)
+  {
+    master.solve_lp();
+
+    Solution sol{vvec{master.lp_xvals()}, vdouble{master.lp_theta()}};
+
+    Cut cut = tree.scaled_cut(0, sol);
+
+    cout << master.obj() << '\n';
+    if (not tree.add_cut(0, cut, sol))
+      break;
+  }
+
+
 
   return 0;
 }

@@ -1,6 +1,6 @@
 #include "master.h"
 
-void Master::update(Solution &sol)
+void Master::update(Solution const &sol)
 {
   int ncons = d_data.ncons();
   int ncuts = d_cuts.size();
@@ -13,9 +13,14 @@ void Master::update(Solution &sol)
   for (Cut &cut : d_cuts)
     rhs.push_back(compute_rhs(cut, sol));
 
-  GRBConstr *cons = d_model.getConstrs();
-  d_model.set(GRB_DoubleAttr_RHS, cons, rhs.data(), rhs.size());
-  delete[] cons;
+  GRBConstr *mip_cons = d_mip.getConstrs();
+  d_mip.set(GRB_DoubleAttr_RHS, mip_cons, rhs.data(), rhs.size());
+  delete[] mip_cons;
 
-  d_model.update();
+  GRBConstr *lp_cons = d_lp.getConstrs();
+  d_lp.set(GRB_DoubleAttr_RHS, lp_cons, rhs.data(), rhs.size());
+  delete[] lp_cons;
+
+  d_mip.update();
+  d_lp.update();
 }

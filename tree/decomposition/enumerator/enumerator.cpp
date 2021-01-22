@@ -2,15 +2,16 @@
 
 Enumerator::Enumerator(vector<NodeData> &nodes, vector<int> path, bool leaf, GRBEnv &env)
 :
+d_data(nodes[path.back()]),
 d_mp(env),
 d_sp(env)
 {
   if (path.size() == 1)   // root node
     return;
 
-  d_alpha = d_mp.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+  d_alpha = d_mp.addVar(-GRB_INFINITY, GRB_INFINITY, -1.0, GRB_CONTINUOUS);
 
-  for (auto it = path.begin() + 1; it != path.end(); ++it)
+  for (auto it = path.begin(); it != path.end() - 1; ++it)
   {
     int nvars = nodes[*it].nvars();
     vector<double> lb(nvars, -GRB_INFINITY);
@@ -24,14 +25,14 @@ d_sp(env)
     delete[] beta;
   }
 
-  for (size_t idx = 1; idx != path.size(); ++idx)
+  for (size_t idx = 0; idx != path.size() - 1; ++idx)
     d_tau.push_back(d_mp.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS));
 
   for (int node : path)
   {
     int nvars = nodes[node].nvars();
     GRBVar *xnode = d_sp.addVars(nodes[node].d_lb.memptr(),
-                                 nodes[node].d_lb.memptr(),
+                                 nodes[node].d_ub.memptr(),
                                  nodes[node].d_costs.memptr(),     // only relevant for x_n
                                  nodes[node].d_types.memptr(),
                                  nullptr,
@@ -40,26 +41,29 @@ d_sp(env)
     delete[] xnode;
   }
 
-  for (auto it = path.begin() + leaf; it != path.end(); ++it)      // first is skipped if leaf = true{
+  for (auto it = path.begin(); it != path.end(); ++it)
     d_theta.push_back(d_sp.addVar(nodes[*it].d_L,
                                   GRB_INFINITY,
-                                  1.0,                         // only relevant for theta_n
+                                  0.0,                         // only relevant for theta_n
                                   GRB_CONTINUOUS));
-
-
-
-  for (size_t lvl = 0; lvl != path.size(); ++lvl)
+  if (leaf)
   {
-    NodeData &data = nodes[path[lvl]];
+    d_theta.back().set(GRB_DoubleAttr_LB, 0);
+    d_theta.back().set(GRB_DoubleAttr_UB, 0);
+  }
+
+  for (size_t stage = 0; stage != path.size(); ++stage)
+  {
+    NodeData &data = nodes[path[stage]];
     GRBLinExpr lhs[data.ncons()];
 
     for (auto iter = data.d_Amat.begin(); iter != data.d_Amat.end(); ++iter)
-      lhs[iter.col()] += *iter * d_x[lvl][iter.row()];
+      lhs[iter.col()] += *iter * d_x[stage][iter.row()];
 
-    if (lvl + 1 != path.size())   // check if not root (ancestor variables have to exist)
+    if (stage > 0)   // check if not root (ancestor variables have to exist)
     {
       for (auto iter = data.d_Bmat.begin(); iter != data.d_Bmat.end(); ++iter)
-        lhs[iter.col()] += *iter * d_x[lvl + 1][iter.row()];
+        lhs[iter.col()] += *iter * d_x[stage - 1][iter.row()];
     }
 
     delete[] d_sp.addConstrs(lhs,
@@ -75,11 +79,12 @@ d_sp(env)
 
 Enumerator::Enumerator(const Enumerator &other)
 :
+d_data(other.d_data),
 d_mp(other.d_mp),
 d_sp(other.d_sp),
 d_points(other.d_points)
 {
-  if (d_mp.get(GRB_IntAttr_NumVars) == 0)   // root node
+  if (d_data.d_stage == 1)   // root node
     return;
 
   GRBVar *mp_vars = d_mp.getVars();
@@ -106,7 +111,6 @@ d_points(other.d_points)
 
   for (size_t var = 0; var != other.d_theta.size(); ++var)
     d_theta.push_back(sub_vars[start + var]);
-
 
   delete[] mp_vars;
   delete[] sub_vars;

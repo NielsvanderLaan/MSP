@@ -20,11 +20,11 @@ Tree ssv()
   sp_mat test (rm);
 
   NodeData sub {2,
-                1.0/441,
+                1.0/121,
                 0.0,
                 vec{-16, -19, -23, -28},
                 vec{0.0, 0.0, 0.0, 0.0},
-                vec{1.0, 1.0, 1.0, 1.0},
+                vec{GRB_INFINITY, GRB_INFINITY, GRB_INFINITY, GRB_INFINITY},
                 sp_mat(rm),
                 sp_mat(id),
                 vec{5, 5},
@@ -34,11 +34,11 @@ Tree ssv()
   Tree tree;
   tree.add_node(root);
 
-  for (size_t s1 = 0; s1 != 21; ++s1)
+  for (size_t s1 = 0; s1 != 11; ++s1)
   {
-    for (size_t s2 = 0; s2 != 21; ++s2)
+    for (size_t s2 = 0; s2 != 11; ++s2)
     {
-      sub.d_rhs = {5.0 + 0.5*s1, 5.0 + 0.5*s2};
+      sub.d_rhs = {5.0 + s1, 5.0 + s2};
       tree.add_node(sub, 0);
     }
   }

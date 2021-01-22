@@ -2,6 +2,8 @@
 
 bool Tree::add_cut(int id, Cut &cut, Solution &sol)
 {
+  cut.scale();
+
   if (not d_masters[id].add_cut(cut, sol))
     return false;      // no cut added
 

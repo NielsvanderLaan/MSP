@@ -10,12 +10,16 @@ bool Master::add_cut(Cut &cut, Solution &sol, double tol)
 
   d_cuts.push_back(cut);
 
-  GRBLinExpr lhs = (1 + cut.d_tau[0]) * d_theta;
-  lhs.addTerms(cut.d_beta[0].memptr(), d_xvars.data(), d_xvars.size());
+  GRBLinExpr mip_lhs = (1 + cut.d_tau[0]) * d_mip_theta;
+  mip_lhs.addTerms(cut.d_beta[0].memptr(), d_mip_xvars.data(), d_mip_xvars.size());
+  d_mip.addConstr(mip_lhs >= rhs_val);
 
-  d_model.addConstr(lhs >= rhs_val);
+  GRBLinExpr lhs = (1 + cut.d_tau[0]) * d_lp_theta;
+  lhs.addTerms(cut.d_beta[0].memptr(), d_lp_xvars.data(), d_lp_xvars.size());
+  d_lp.addConstr(lhs >= rhs_val);
 
-  d_model.update();
+  d_mip.update();
+  d_lp.update();
 
   return true;
 }

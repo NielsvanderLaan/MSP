@@ -4,6 +4,7 @@ vector<int> Tree::nvars(int id)
 {
   vector<int> ret;
   vector<int> path = path_to(id);
+
   ret.reserve(path.size());
 
   for (int node : path)

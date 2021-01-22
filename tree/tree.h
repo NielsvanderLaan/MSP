@@ -33,7 +33,10 @@ public:
   bool add_cut(int id, Cut &cut, Solution &sol);
 
   // cuts
-  Cut lp_cut(int node, Solution &sol);
+  Cut lp_cut(int node, Solution const &sol);
+  Cut scaled_cut(int node, Solution sol, double tol = 1e-4);
+
+  void init_enums(int node, Solution const &sol);
 
 
 };
