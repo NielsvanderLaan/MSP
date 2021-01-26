@@ -30,10 +30,11 @@ d_lp(d_data.to_model(env, true))
 
 Master::Master(const Master &other)
 :
-d_data(other.d_data),
-d_mip(other.d_mip),
-d_lp(other.d_lp),
-d_cuts(other.d_cuts)
+        d_data(other.d_data),
+        d_mip(other.d_mip),
+        d_lp(other.d_lp),
+        d_cuts(other.d_cuts),
+        d_state(other.d_state)
 {
   int nvars = d_data.nvars();
 

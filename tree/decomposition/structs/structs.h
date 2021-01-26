@@ -4,6 +4,7 @@
 #include <armadillo>
 #include <vector>
 #include "assert.h"
+#include "gurobi_c++.h"
 
 using namespace std;
 
@@ -17,6 +18,8 @@ struct Solution
 
   int depth() const;
   void extend(arma::vec const &x_n, double theta_n);
+
+  void print();
 };
 
 struct Cut
@@ -33,10 +36,11 @@ struct Cut
   double d_alpha;
   vvec d_beta;
   vdouble d_tau;
+  bool d_feas;
 
-  Cut() = default;
+  Cut();
   Cut(double a, vvec b, vdouble t);
-  Cut (vector<int> nvars);
+  Cut (vector<int> const &nvars);
 
 
   Cut operator*(double scale) const
@@ -64,10 +68,12 @@ struct Cut
 
   int depth() const;
   void scale();
+  void print();
 };
 
 double compute_lhs(Cut const &cut, Solution const &sol);
 double compute_rhs(Cut const &cut, Solution const &sol);
 double scaled_rhs(Cut const &cut, Solution const &sol);
+bool is_integer(arma::vec x, arma::Col<char> const &types);
 
 #endif //MSP_STRUCTS_H

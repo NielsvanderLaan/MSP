@@ -11,10 +11,10 @@ Tree ssv()
                  sp_mat(),
                  sp_mat(),
                  vec(),
-                 Col<char>{GRB_CONTINUOUS, GRB_CONTINUOUS},
+                 Col<char>{GRB_INTEGER, GRB_INTEGER},
                  Col<char>()};
 
-  sp_mat id = eye<sp_mat>(2,2);
+  mat tm = {{2.0/3, 1.0/3}, {1.0/3, 2.0/3}};
   mat rm = {{2, 6}, {3, 1}, {4, 3}, {5, 2}};
 
   sp_mat test (rm);
@@ -26,7 +26,7 @@ Tree ssv()
                 vec{0.0, 0.0, 0.0, 0.0},
                 vec{GRB_INFINITY, GRB_INFINITY, GRB_INFINITY, GRB_INFINITY},
                 sp_mat(rm),
-                sp_mat(id),
+                sp_mat(tm),
                 vec{5, 5},
                 Col<char>{GRB_INTEGER, GRB_INTEGER, GRB_INTEGER, GRB_INTEGER},
                 Col<char>{GRB_LESS_EQUAL, GRB_LESS_EQUAL}};

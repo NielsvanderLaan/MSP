@@ -1,19 +1,20 @@
 #include "enumerator.h"
 
-Enumerator::Enumerator(vector<NodeData> &nodes, vector<int> path, bool leaf, GRBEnv &env)
+Enumerator::Enumerator(vector<NodeData> &nodes, vector<int> path, int mp_depth, bool leaf, GRBEnv &env)
 :
 d_data(nodes[path.back()]),
 d_mp(env),
 d_sp(env)
 {
-  if (path.size() == 1)   // root node
-    return;
+  d_sp.set(GRB_DoubleParam_MIPGapAbs, 1e-4);
+  d_sp.set(GRB_DoubleParam_MIPGap, 0.0);
+  d_sp.set(GRB_DoubleParam_TimeLimit, 60);
 
   d_alpha = d_mp.addVar(-GRB_INFINITY, GRB_INFINITY, -1.0, GRB_CONTINUOUS);
 
-  for (auto it = path.begin(); it != path.end() - 1; ++it)
+  for (size_t stage = 0; stage < mp_depth; ++stage)
   {
-    int nvars = nodes[*it].nvars();
+    int nvars = nodes[path[stage]].nvars();
     vector<double> lb(nvars, -GRB_INFINITY);
     GRBVar *beta  = d_mp.addVars(lb.data(),
                                  nullptr,
@@ -25,15 +26,18 @@ d_sp(env)
     delete[] beta;
   }
 
-  for (size_t idx = 0; idx != path.size() - 1; ++idx)
+  for (size_t stage = 0; stage < mp_depth; ++stage)
     d_tau.push_back(d_mp.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS));
+
+  if (mp_depth == path.size())
+    set_bounds();
 
   for (int node : path)
   {
     int nvars = nodes[node].nvars();
     GRBVar *xnode = d_sp.addVars(nodes[node].d_lb.memptr(),
                                  nodes[node].d_ub.memptr(),
-                                 nodes[node].d_costs.memptr(),     // only relevant for x_n
+                                 nodes[node].d_costs.memptr(),
                                  nodes[node].d_types.memptr(),
                                  nullptr,
                                  nvars);
@@ -44,8 +48,9 @@ d_sp(env)
   for (auto it = path.begin(); it != path.end(); ++it)
     d_theta.push_back(d_sp.addVar(nodes[*it].d_L,
                                   GRB_INFINITY,
-                                  0.0,                         // only relevant for theta_n
+                                  1.0,
                                   GRB_CONTINUOUS));
+
   if (leaf)
   {
     d_theta.back().set(GRB_DoubleAttr_LB, 0);
@@ -72,7 +77,6 @@ d_sp(env)
                              nullptr,
                              data.ncons());
   }
-
   d_mp.update();
   d_sp.update();
 }
@@ -84,9 +88,6 @@ d_mp(other.d_mp),
 d_sp(other.d_sp),
 d_points(other.d_points)
 {
-  if (d_data.d_stage == 1)   // root node
-    return;
-
   GRBVar *mp_vars = d_mp.getVars();
   d_alpha = mp_vars[0];
   int start = 1;

@@ -6,7 +6,8 @@
 
 #include "../../nodedata/nodedata.h"
 #include "../structs/structs.h"
-#include "../enumerator/enumerator.h"
+
+typedef vector<GRBVar> vvar;
 
 using namespace std;
 
@@ -24,22 +25,27 @@ public:
   vvar d_lp_xvars;          // decision variables
 
   vector<Cut> d_cuts;
+  Solution d_state;         // state variables [x_a(n)], [theta_a(n)]
 
   Master(NodeData &data, bool leaf, GRBEnv &env);
   Master(const Master &other);
 
-  bool add_cut(Cut &cut, Solution &sol, double tol = 1e-4);
+  bool add_cut(Cut const &cut, double tol = 1e-4);
   void update(Solution const &sol);
   void solve_lp();
   void solve_mip();
-  Cut compute_cut(Solution const &sol);
+  Cut compute_cut();
 
     // getters
-  arma::vec mip_xvals();
-  double mip_theta();
-
   arma::vec lp_xvals();
   double lp_theta();
+  Solution lp_forward();
+  bool integer();
+
+  arma::vec mip_xvals();
+  double mip_theta();
+  Solution mip_forward();
+
   arma::vec multipliers();
   double obj();
 };

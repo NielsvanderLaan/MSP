@@ -1,17 +1,17 @@
 #include "../tree.h"
 
-void Tree::init_enums(int node, Solution const &sol)
+void Tree::init_enums(int node)
 {
+  Solution sol = d_masters[node].lp_forward();
+
   for (int child : d_children[node])
   {
     Master &master = d_masters[child];
-    master.update(sol);
     master.solve_mip();
 
-    Solution copy = sol;
-    copy.extend(master.mip_xvals(), master.mip_theta());
+    Solution forward = master.mip_forward();
 
     d_enumerators[child].set_mp(sol);
-    d_enumerators[child].add_point(copy);
+    d_enumerators[child].add_point(forward);
   }
 }

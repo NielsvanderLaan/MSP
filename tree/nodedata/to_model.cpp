@@ -9,7 +9,7 @@ GRBModel NodeData::to_model(GRBEnv &env, bool lp)
                                d_costs.memptr(),
                                lp ? nullptr : d_types.memptr(),
                                nullptr,
-                                d_costs.n_elem);
+                                nvars());
 
   GRBLinExpr lhs[d_Amat.n_cols];
   for (auto iter = d_Amat.begin(); iter != d_Amat.end(); ++iter)
@@ -19,7 +19,7 @@ GRBModel NodeData::to_model(GRBEnv &env, bool lp)
                                         d_senses.memptr(),
                                         nullptr,
                                         nullptr,
-                                        d_Amat.n_cols);
+                                        ncons());
 
   delete[] vars;
   delete[] constrs;

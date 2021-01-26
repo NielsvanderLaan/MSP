@@ -1,8 +1,7 @@
 #include "master.h"
 
-Cut Master::compute_cut(Solution const &sol)
+Cut Master::compute_cut()
 {
-  update(sol);
   solve_lp();
   arma::vec pi = multipliers();
 
@@ -14,10 +13,10 @@ Cut Master::compute_cut(Solution const &sol)
   double alpha = obj();
 
   for (int level = 0; level != nlevels; ++level)
-    beta[level] = arma::vec(sol.d_x[level].n_elem, arma::fill::zeros);
+    beta[level] = arma::vec(d_state.d_x[level].n_elem, arma::fill::zeros);
 
   arma::vec lambda(pi.memptr(), d_data.ncons(), false);   // constraint multipliers
-  beta[beta.size() - 1] = d_data.d_Bmat * lambda;
+  beta.back() = d_data.d_Bmat * lambda;
 
   double *mu = pi.memptr() + d_data.ncons();          // cut multipliers
 
@@ -28,7 +27,7 @@ Cut Master::compute_cut(Solution const &sol)
       beta[level] += mu[cut] * d_cuts[cut].d_beta[level];
       tau[level] += mu[cut] * d_cuts[cut].d_tau[level];
     }
-    alpha += dot(beta[level], sol.d_x[level]) + tau[level] * sol.d_theta[level];
+    alpha += dot(beta[level], d_state.d_x[level]) + tau[level] * d_state.d_theta[level];
   }
 
   return Cut {alpha, beta, tau};

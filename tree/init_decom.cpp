@@ -7,13 +7,25 @@ void Tree::init_decom(GRBEnv &env)
   d_enumerators.reserve(d_nodes.size());
 
   for (size_t node = 0; node != d_nodes.size(); ++node)
+  {
+    bool leaf = is_leaf(node);
+    vector<int> path = path_to(node);
+
     d_masters.push_back(Master(d_nodes[node],
-                               d_children[node].size() == 0,
+                               leaf,
                                env));
 
-  for (size_t node = 0; node != d_nodes.size(); ++node)
     d_enumerators.push_back(Enumerator(d_nodes,
-                                       path_to(node),
-                                       d_children[node].size() == 0,
+                                       path,
+                                       path.size() - 1,
+                                       leaf,
                                        env));
+
+    d_fenchel.push_back(Enumerator(d_nodes,
+                                       path,
+                                       path.size(),
+                                       leaf,
+                                       env));
+
+  }
 }
