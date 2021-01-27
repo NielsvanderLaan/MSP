@@ -13,13 +13,11 @@ int main()
 
   //Tree tree = ssv();
   Tree tree = control_1D();
-
-
+    /*
   GRBModel model = tree.lsde(env);
   model.set(GRB_IntParam_OutputFlag, 1);
   model.optimize();
-
-
+    */
   cout << "running sddp\n";
   tree.decom(env);
   tree.solve();

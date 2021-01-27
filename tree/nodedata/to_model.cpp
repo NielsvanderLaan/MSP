@@ -17,7 +17,7 @@ GRBModel NodeData::to_model(GRBEnv &env, bool lp)
 
   GRBConstr *constrs = model.addConstrs(lhs,
                                         d_senses.memptr(),
-                                        nullptr,
+                                        d_rhs.memptr(),
                                         nullptr,
                                         ncons());
 

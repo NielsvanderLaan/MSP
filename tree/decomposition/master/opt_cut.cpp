@@ -29,7 +29,6 @@ Cut Master::opt_cut()
     }
     alpha += dot(beta[level], d_state.d_x[level]) + tau[level] * d_state.d_theta[level];
   }
-  Cut cut {alpha, beta, tau};
 
   return Cut {alpha, beta, tau};
 }
