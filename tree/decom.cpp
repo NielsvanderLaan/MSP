@@ -1,6 +1,6 @@
 #include "tree.h"
 
-void Tree::init_decom(GRBEnv &env)
+void Tree::decom(GRBEnv &env)
 {
   assert(d_masters.size() == 0);
   d_masters.reserve(d_nodes.size());

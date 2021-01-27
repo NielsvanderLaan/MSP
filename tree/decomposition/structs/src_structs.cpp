@@ -1,10 +1,14 @@
 #include "structs.h"
 
-
 int Solution::depth() const
 {
   assert(d_x.size() == d_theta.size());
   return d_theta.size();
+}
+
+double Solution::theta_n()
+{
+  return d_theta.back();
 }
 
 void Solution::extend(arma::vec const &x_n, double theta_n)
@@ -15,12 +19,14 @@ void Solution::extend(arma::vec const &x_n, double theta_n)
 
 void Solution::print()
 {
-  for (auto &x : d_x)
+  for (int stage = 0; stage != d_x.size(); ++stage)
   {
+    auto &x = d_x[stage];
+    cout << "x_" << stage + 1 << ' ';
     for_each(x.begin(), x.end(), [](double val){cout << val << ' ';});
     cout << '\n';
   }
-
+  cout << "theta: ";
   for_each(d_theta.begin(), d_theta.end(),[](double val){cout << val << ' ';});
   cout << '\n';
 }

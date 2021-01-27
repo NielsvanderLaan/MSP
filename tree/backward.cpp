@@ -13,9 +13,19 @@ bool Tree::backward(int node)
       ret = true;
   }
 
-  Cut cut = scaled_cut(node);
+  //Cut cut = scaled_cut(node);     // TODO: choose by argument. Use abstract classes?
+  //Cut cut = cpt_scaled_cut(node);
+  Cut cut = sddp_cut(node);
+
+  cout << "node: " << node << '\n';
+  cut.print();
+  d_masters[node].lp_forward().print();
+
   if (add_cut(node, cut))
     ret = true;
+
+
+
 
   return ret;
 }

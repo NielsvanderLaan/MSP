@@ -10,16 +10,13 @@ void Tree::forward(bool lp)
     int node = nodes.front();
     nodes.pop();
 
+    //Solution state = (solve_master(node, lp) || lp) ? d_masters[node].lp_forward() : d_masters[node].mip_forward();
     solve_master(node, lp);
-    // TODO
-    // it could be that sol is not integer feasible in the problem associated with node.
-    // In this case, we may forward the mip_solution (would this work?)
-    // Do we also want to do this in the sddp?
-    Solution sol = d_masters[node].lp_forward();
+    Solution state = d_masters[node].lp_forward();
 
     for (int child : d_children[node])
     {
-      d_masters[child].update(sol);
+      d_masters[child].update(state);
       if (not is_leaf(child))
         nodes.push(child);
     }

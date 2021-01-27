@@ -29,33 +29,32 @@ public:
       // for constructing the problem
   int add_node(NodeData &data, int ancestor = -1);    // ancestor = -1 --> root
 
-    // constructs the LSDE
-  GRBModel lsde(GRBEnv &env);
-
-  void init_decom(GRBEnv &env);
+  GRBModel lsde(GRBEnv &env);             // constructs lsde
+  void decom(GRBEnv &env);                // initializes master problems etc.
+  void solve();                           // solves using forward and backward passes
   void forward(bool lp);
   bool backward(int node = 0);
 
-  void solve_master(int node, bool lp);
-
+  bool solve_master(int node, bool lp = false);   // cutting plane approach to solve the master problem in node n
+  bool add_cut(int id, Cut &cut);                 // adds cuts to master problem and propagates it through the tree.
 
     // auxiliary functions
   vvar add_to_lsde(int node, GRBModel &model, vvar const &parent_vars);
 
-  vector<int> path_to(int id);
-  vector<int> nvars(int id);      // nvars of nodes on path to id
 
-  bool add_cut(int id, Cut &cut);
+    //  optimality cuts
+  Cut sddp_cut(int node);                             // standard Benders' cuts
+  Cut scaled_cut(int node, double tol = 1e-4);        // scaled cuts (vertex enumeration)
+  Cut cpt_scaled_cut(int node, double tol = 1e-4);    // scaled cuts (using Fenchel cutting planes)
 
-  // cuts
-  Cut lp_cut(int node);   // TODO: implement fixed point iteration
-  Cut scaled_cut(int node, double tol = 1e-4);
-  Cut fenchel_cut(int node, double tol = 1e-4);
 
-  Cut fp_iteration(int node, vector<CutFamily> &gens, double tol = 1e-4);
+  Cut fenchel_cut(int node, double tol = 1e-4);     // cutting plane for MIPs
+  Cut fp_iteration(int node, vector<CutFamily> &gens, double tol = 1e-4);   // TODO
 
   void init_enums(int node);
 
+  vector<int> path_to(int id);
+  vector<int> nvars(int id);      // nvars of nodes on path to id
   bool is_leaf(int node);
 };
 

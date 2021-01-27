@@ -9,32 +9,18 @@ int main()
 {
   GRBEnv env;
   env.set(GRB_IntParam_OutputFlag, 0);
+  env.set(GRB_IntParam_Threads, 1);
 
-  Tree tree = ssv();
+  //Tree tree = ssv();
+  Tree tree = control_1D();
 
-  tree.init_decom(env);
 
-  Master &master = tree.d_masters[0];
-  /*
-  while (true)
-  {
-    tree.forward(true);
-    cout << master.obj() << '\n';
-    Cut cut = tree.lp_cut(0);
+  GRBModel model = tree.lsde(env);
+  model.set(GRB_IntParam_OutputFlag, 1);
+  model.optimize();
 
-    if (not tree.add_cut(0, cut))
-      break;
-  }
-  cout << "sddp done\n";
-  */
-  while (true)
-  {
-    tree.forward(false);
-    cout << master.obj() << '\n';
 
-    if (not tree.backward())
-      break;
-  }
-
-  return 0;
+  cout << "running sddp\n";
+  tree.decom(env);
+  tree.solve();
 }

@@ -15,11 +15,7 @@ GRBModel Tree::lsde(GRBEnv &env)
       nodes.push(child);
     nodes.pop();
 
-    vvar parent_vars;
-    if (node > 0)
-      parent_vars = lsde_vars[d_ancestor[node]];
-
-    lsde_vars[node] = add_to_lsde(node, model, parent_vars);
+    lsde_vars[node] = add_to_lsde(node, model, node > 0 ? lsde_vars[d_ancestor[node]] : vvar{});
   }
 
   model.update();

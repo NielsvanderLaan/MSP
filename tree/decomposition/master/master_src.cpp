@@ -75,3 +75,9 @@ double Master::obj()
 {
   return d_lp.get(GRB_DoubleAttr_ObjBound);
 }
+
+void Master::set_rho(double rho)
+{
+  d_lp_theta.set(GRB_DoubleAttr_Obj, rho);
+  d_lp.update();
+}

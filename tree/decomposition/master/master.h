@@ -30,11 +30,14 @@ public:
   Master(NodeData &data, bool leaf, GRBEnv &env);
   Master(const Master &other);
 
+  Cut opt_cut();
+
   bool add_cut(Cut const &cut, double tol = 1e-4);
   void update(Solution const &sol);
   void solve_lp();
   void solve_mip();
-  Cut compute_cut();
+
+  void set_rho(double rho);
 
     // getters
   arma::vec lp_xvals();

@@ -19,6 +19,7 @@ struct Solution
   int depth() const;
   void extend(arma::vec const &x_n, double theta_n);
 
+  double theta_n();
   void print();
 };
 

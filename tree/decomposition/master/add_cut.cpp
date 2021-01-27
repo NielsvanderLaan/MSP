@@ -2,7 +2,7 @@
 
 bool Master::add_cut(Cut const &cut, double tol)
 {
-  Solution sol = lp_forward();
+  Solution sol = lp_forward();      // TODO: in some cases: mip_forward (but when??)
 
   double lhs_val = compute_lhs(cut, sol);
   double rhs_val = compute_rhs(cut, sol);

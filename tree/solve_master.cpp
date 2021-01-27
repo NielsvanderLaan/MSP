@@ -1,20 +1,21 @@
 #include "tree.h"
 
-void Tree::solve_master(int node, bool lp)
+bool Tree::solve_master(int node, bool lp)
 {
   Master &master = d_masters[node];
 
   master.solve_lp();
   if (lp)
-    return;
+    return true;
 
   while (not master.integer())
   {
     Cut cut = fenchel_cut(node);
 
     if (not add_cut(node, cut))
-      break;
+      return false;
 
     master.solve_lp();
   }
+  return true;
 }

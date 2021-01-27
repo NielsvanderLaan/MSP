@@ -7,5 +7,6 @@ using namespace std;
 using namespace arma;
 
 Tree ssv();
+Tree control_1D();
 
 #endif //MSP_INSTANCES_H

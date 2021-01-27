@@ -1,6 +1,6 @@
 #include "master.h"
 
-Cut Master::compute_cut()
+Cut Master::opt_cut()
 {
   solve_lp();
   arma::vec pi = multipliers();
@@ -29,6 +29,7 @@ Cut Master::compute_cut()
     }
     alpha += dot(beta[level], d_state.d_x[level]) + tau[level] * d_state.d_theta[level];
   }
+  Cut cut {alpha, beta, tau};
 
   return Cut {alpha, beta, tau};
 }
