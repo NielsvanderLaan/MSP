@@ -23,5 +23,4 @@ int main()
   cout << "running sddp\n";
   tree.decom(env);
   tree.solve();
-  return 0;
 }
