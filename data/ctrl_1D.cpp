@@ -36,10 +36,9 @@ Stagewise ctrl_1D()
   sp_mat Bmat = {umat{{0, 1}, {0, 0}}, vec{-1.0, 1.0}, 4, 2};
 
   double beta = 0.9;
-  double prob = 1.0;
   for (int stage = 1; stage != stages ; ++stage)
   {
-    prob = 1.0 / scenarios[stage];
+    double prob = 1.0 / scenarios[stage];
 
     NodeData sub {stage + 1,
                   prob,
@@ -53,16 +52,14 @@ Stagewise ctrl_1D()
                   types,
                   senses};
 
-    double step = 10.0 / (scenarios[stage] - 1);
+    //double step = 10.0 / (scenarios[stage] - 1);
     for (int s = 0; s != scenarios[stage]; ++s)
     {
-      sub.d_rhs[0] = -5.0 + s * step;
-      /*
+      //sub.d_rhs[0] = -5.0 + s * step;
       if (s % 2 == 0)
         sub.d_rhs[0] = uni(engine);
       else
         sub.d_rhs[0] = -uni(engine);
-      */
       sw.add_node(sub);
     }
 

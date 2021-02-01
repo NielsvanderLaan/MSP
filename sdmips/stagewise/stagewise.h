@@ -25,6 +25,7 @@ public:
   vector<vsol> forward(vector<path> &paths);
   void backward(vector<vsol> const &sols);
   vector<path> sample(size_t nsamples = -1);
+  vector<path> enumerate_paths(vector<path> paths = vector<path> (1));
 
   void solve(int stage, int node);
   void add_cut(Cut &cut, int stage);

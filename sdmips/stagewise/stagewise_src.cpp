@@ -19,7 +19,7 @@ void Stagewise::sddmip()
   size_t max_iter = 10;
   for (int iter = 0; iter != max_iter; ++iter)    // TODO: stopping criterion
   {
-    vector<path> paths = sample();
+    vector<path> paths = enumerate_paths();
     vector<vsol> sols = forward(paths);
     cout << d_masters[0][0].obj() << '\n';
 
@@ -27,17 +27,49 @@ void Stagewise::sddmip()
   }
 }
 
+vector<path> Stagewise::enumerate_paths(vector<path> paths)   // TODO
+{
+  int stage = paths[0].size();
+
+  vector<path> ret;
+  int outcomes = d_stages[stage].size();
+  ret.reserve(paths.size() * outcomes);
+
+  for (path &sub_path : paths)
+  {
+    for (int outcome = 0; outcome != outcomes; ++outcome)
+    {
+      path copy = sub_path;
+      copy.push_back(outcome);
+      ret.push_back(copy);
+    }
+  }
+
+  if (stage != d_stages.size() - 1)
+    return enumerate_paths(ret);
+
+  return ret;
+}
+
+
 vector<path> Stagewise::sample(size_t nsamples)   // TODO
 {
   size_t npaths = 1;
   for (auto &stage : d_stages)
     npaths *= stage.size();
-  vector<path> paths(npaths);
+  vector<path> paths;
+  paths.reserve(npaths);
 
-  for (auto &stage : d_stages)
+  for (int s1 = 0; s1 != d_stages[0].size(); ++s1)
   {
-    for (size_t path = 0; path != npaths; ++path)
-      paths[path].push_back(path % stage.size());
+    for (int s2 = 0; s2 != d_stages[1].size(); ++s2)
+    {
+      for (int s3 = 0; s3 != d_stages[2].size(); ++s3)
+      {
+        for (int s4 = 0; s4 != d_stages[3].size(); ++s4)
+          paths.emplace_back(path{s1, s2, s3, s4});
+      }
+    }
   }
 
   return paths;
