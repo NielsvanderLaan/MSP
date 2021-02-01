@@ -94,11 +94,7 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
   for (int child = 0; child != subs.size(); ++child)
   {
     subs[child].update(sol);
-    Cut cut = subs[child].opt_cut();
-    cut.print();
-    cout << d_stages[stage][child].d_prob << '\n';
-
-    ret += d_stages[stage][child].d_prob *  cut;
+    ret += d_stages[stage + 1][child].d_prob * subs[child].opt_cut();
   }
   return ret;
 }
@@ -143,7 +139,7 @@ void Stagewise::add_node(NodeData const &data)
   if (stage == 1)
     assert(d_stages[0].empty());
 
-  d_stages[data.d_stage - 1].push_back(data);
+  d_stages[stage - 1].push_back(data);
 }
 
 vector<int> Stagewise::nvars(int stage) const
