@@ -5,7 +5,7 @@
 
 #include "gurobi_c++.h"
 
-#include "tree/tree.h"
+#include "sdmips/tree/tree.h"
 #include "data/instances.h"
 
 using namespace std;

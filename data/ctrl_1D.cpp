@@ -1,14 +1,15 @@
 #include "instances.h"
 
-Tree control_1D()
+#include "instances.h"
+
+Stagewise ctrl_1D()
 {
   int seed = 1234; //random_device{}()
   mt19937 engine(seed);
   uniform_real_distribution<double> uni(0.5, 1.0);
 
-  vector<int> scenarios {1, 10, 10, 10};   // per stage
+  vector<int> scenarios {1, 10, 10};   // per stage
   int stages = scenarios.size();
-  vector<vdouble> nodes(stages);       // stores the nodes for each stage
 
   sp_mat Amat(mat{{1,0}, {-1, 0}, {-1, 1}, {1, 1}});
   double M = GRB_INFINITY;
@@ -29,8 +30,8 @@ Tree control_1D()
                  types,
                  senses };
 
-  Tree tree;
-  nodes[0].push_back(tree.add_node(root));
+  Stagewise sw;
+  sw.add_node(root);
 
   sp_mat Bmat = {umat{{0, 1}, {0, 0}}, vec{-1.0, 1.0}, 4, 2};
 
@@ -38,7 +39,7 @@ Tree control_1D()
   double prob = 1.0;
   for (int stage = 1; stage != stages ; ++stage)
   {
-    prob /= scenarios[stage];
+    prob = 1.0 / scenarios[stage];
 
     NodeData sub {stage + 1,
                   prob,
@@ -52,24 +53,21 @@ Tree control_1D()
                   types,
                   senses};
 
-    for (int parent : nodes[stage - 1])
+    double step = 10.0 / (scenarios[stage] - 1);
+    for (int s = 0; s != scenarios[stage]; ++s)
     {
-      //double step = 10.0 / (scenarios[stage] - 1);
-      for (int s = 0; s != scenarios[stage]; ++s)
-      {
-        //sub.d_rhs[0] = -5.0 + s * step;
-
-        if (s % 2 == 0)
-          sub.d_rhs[0] = uni(engine);
-        else
-          sub.d_rhs[0] = -uni(engine);
-
-
-        nodes[stage].push_back(tree.add_node(sub, parent));
-      }
+      sub.d_rhs[0] = -5.0 + s * step;
+      /*
+      if (s % 2 == 0)
+        sub.d_rhs[0] = uni(engine);
+      else
+        sub.d_rhs[0] = -uni(engine);
+      */
+      sw.add_node(sub);
     }
+
     beta = beta * beta;
   }
 
-  return tree;
+  return sw;
 }
