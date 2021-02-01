@@ -6,7 +6,7 @@ Stagewise ctrl_1D()
   mt19937 engine(seed);
   uniform_real_distribution<double> uni(0.5, 1.0);
 
-  vector<int> scenarios {1, 5, 5, 5};   // per stage
+  vector<int> scenarios {1, 25, 25, 25};   // per stage
   int stages = scenarios.size();
 
   sp_mat Amat(mat{{1,0}, {-1, 0}, {-1, 1}, {1, 1}});

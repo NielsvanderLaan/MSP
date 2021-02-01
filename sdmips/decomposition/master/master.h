@@ -35,7 +35,6 @@ public:
   Cut opt_cut();
 
   bool add_cut(Cut const &cut, double tol = 1e-4);
-  void add(Cut const &cut, double rhs);
   void add(Cut const &cut);
   void update(Solution const &sol);
   void solve_lp();

@@ -63,13 +63,6 @@ vector<path> Stagewise::sample(size_t nsamples)   // TODO
       walk.push_back(uni(d_engine));
   }
 
-  for (path &walk : ret)
-  {
-    for (int el : walk)
-      cout << el << ' ';
-    cout << endl;
-  }
-
   return ret;
 }
 
@@ -92,7 +85,7 @@ vector<vsol> Stagewise::forward(vector<path> &paths)
       d_masters[stage + 1][child].update(forward);
     }
   }
-  ret[0].resize(1);
+  ret.begin()->resize(1);
   return ret;
 }
 

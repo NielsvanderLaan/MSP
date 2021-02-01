@@ -20,7 +20,8 @@ int main()
   cout << "STOCHASTIC NESTED DECOMPOSITION\n";
   tree.decom(env);
   tree.SND();
-  */
+  return 0;
+   */
 
   Stagewise sw = ctrl_1D();
   GRBModel sw_model = sw.lsde(env);

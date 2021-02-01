@@ -27,7 +27,7 @@ public:
   void sddmip();
   vector<vsol> forward(vector<path> &paths);
   void backward(vector<vsol> const &sols);
-  vector<path> sample(size_t nsamples = 10);
+  vector<path> sample(size_t nsamples = 30);
   vector<path> enumerate_paths(vector<path> paths = vector<path> (1));
 
   void solve(int stage, int node);
