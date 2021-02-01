@@ -69,7 +69,7 @@ struct Cut
 
   int depth() const;
   void scale();
-  void print();
+  void print() const;
 };
 
 double compute_lhs(Cut const &cut, Solution const &sol);

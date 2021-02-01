@@ -85,7 +85,7 @@ Cut operator*(double scale, const Cut &other)
   return other * scale;
 }
 
-void Cut::print()
+void Cut::print() const
 {
   cout << "alpha: " << d_alpha;
   for (size_t idx = 0; idx != d_beta.size(); ++idx)
