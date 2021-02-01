@@ -94,7 +94,11 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
   for (int child = 0; child != subs.size(); ++child)
   {
     subs[child].update(sol);
-    ret += d_stages[stage][child].d_prob * subs[child].opt_cut();
+    Cut cut = subs[child].opt_cut();
+    cut.print();
+    cout << d_stages[stage][child].d_prob << '\n';
+
+    ret += d_stages[stage][child].d_prob *  cut;
   }
   return ret;
 }
