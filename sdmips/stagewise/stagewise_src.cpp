@@ -19,7 +19,7 @@ void Stagewise::sddmip()
   size_t max_iter = 10;
   for (int iter = 0; iter != max_iter; ++iter)    // TODO: stopping criterion
   {
-    vector<path> paths = enumerate_paths();
+    vector<path> paths = sample();
     vector<vsol> sols = forward(paths);
     cout << d_masters[0][0].obj() << '\n';
 
@@ -35,11 +35,11 @@ vector<path> Stagewise::enumerate_paths(vector<path> paths)   // TODO
   int outcomes = d_stages[stage].size();
   ret.reserve(paths.size() * outcomes);
 
-  for (path &sub_path : paths)
+  for (path &walk : paths)
   {
     for (int outcome = 0; outcome != outcomes; ++outcome)
     {
-      path copy = sub_path;
+      path copy = walk;
       copy.push_back(outcome);
       ret.push_back(copy);
     }
@@ -54,25 +54,23 @@ vector<path> Stagewise::enumerate_paths(vector<path> paths)   // TODO
 
 vector<path> Stagewise::sample(size_t nsamples)   // TODO
 {
-  size_t npaths = 1;
-  for (auto &stage : d_stages)
-    npaths *= stage.size();
-  vector<path> paths;
-  paths.reserve(npaths);
+  vector<path> ret(nsamples);
 
-  for (int s1 = 0; s1 != d_stages[0].size(); ++s1)
+  for (stage_data const &stage : d_stages)
   {
-    for (int s2 = 0; s2 != d_stages[1].size(); ++s2)
-    {
-      for (int s3 = 0; s3 != d_stages[2].size(); ++s3)
-      {
-        for (int s4 = 0; s4 != d_stages[3].size(); ++s4)
-          paths.emplace_back(path{s1, s2, s3, s4});
-      }
-    }
+    uniform_int_distribution<int> uni(0, stage.size() - 1);
+    for (path &walk : ret)
+      walk.push_back(uni(d_engine));
   }
 
-  return paths;
+  for (path &walk : ret)
+  {
+    for (int el : walk)
+      cout << el << ' ';
+    cout << endl;
+  }
+
+  return ret;
 }
 
 vector<vsol> Stagewise::forward(vector<path> &paths)

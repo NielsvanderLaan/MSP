@@ -4,6 +4,7 @@
 #include "../nodedata/nodedata.h"
 #include "../decomposition/master/master.h"
 #include "../decomposition/enumerator/enumerator.h"
+#include <random>
 
 typedef vector<NodeData> stage_data;
 typedef vector<Master> vmaster;
@@ -13,6 +14,8 @@ typedef vector<Solution> vsol;
 class Stagewise
 {
 public:
+  mt19937 d_engine{random_device{}()};
+
   vector<stage_data> d_stages;
   vector<vmaster> d_masters;
 
@@ -24,7 +27,7 @@ public:
   void sddmip();
   vector<vsol> forward(vector<path> &paths);
   void backward(vector<vsol> const &sols);
-  vector<path> sample(size_t nsamples = -1);
+  vector<path> sample(size_t nsamples = 10);
   vector<path> enumerate_paths(vector<path> paths = vector<path> (1));
 
   void solve(int stage, int node);
