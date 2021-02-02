@@ -9,6 +9,7 @@ d_data(nodes[path.back()])
   d_sp->set(GRB_DoubleParam_MIPGapAbs, 1e-4);
   d_sp->set(GRB_DoubleParam_MIPGap, 0.0);
   d_sp->set(GRB_DoubleParam_TimeLimit, 60);
+  d_mp->set(GRB_IntParam_Method, 1);
 
   d_alpha = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, -1.0, GRB_CONTINUOUS);
 

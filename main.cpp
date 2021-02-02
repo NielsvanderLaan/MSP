@@ -11,6 +11,7 @@ int main()
   env.set(GRB_IntParam_OutputFlag, 0);
   env.set(GRB_IntParam_Threads, 1);
 
+
   //Tree tree = ssv();
   /*
   Tree tree = control_1D();

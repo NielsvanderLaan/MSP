@@ -3,7 +3,24 @@
 void Enumerator::solve_mp()
 {
   d_mp->optimize();
-  assert(d_mp->get(GRB_IntAttr_Status) == 2);
+
+  int status = d_mp->get(GRB_IntAttr_Status);
+  if (status == 5)
+  {
+    d_mp->set(GRB_IntParam_ScaleFlag, 0);
+    d_mp->set(GRB_IntParam_NumericFocus, 3);
+    d_mp->set(GRB_IntParam_Presolve, 0);
+    d_mp->optimize();
+    status = d_mp->get(GRB_IntAttr_Status);
+  }
+
+  if (status != 2)
+  {
+    cout << status << '\n';
+    d_mp->write("mp.lp");
+  }
+
+  assert(status == 2);
 }
 
 void Enumerator::solve_sp()

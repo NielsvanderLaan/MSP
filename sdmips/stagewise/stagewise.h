@@ -37,9 +37,14 @@ public:
   bool add_cp(Cut &cut, int stage, int node, double tol = 1e-4);
   void add_cut(Cut &cut, int stage);
 
-  Cut sddp_cut(int stage, Solution const &sol);        // has to be valid for Q_t (stage-specific)
+  Cut sddp_cut(int stage, Solution const &sol);             // has to be valid for Q_t (stage-specific)
+  Cut scaled_cut(int stage, Solution const &sol, double tol = 1e-4);
   Cut fenchel_cut(int stage, int node, double tol = 1e-4);                // has to be valid for X_n (node-specific)
 
+
+  void init_enums(int stage, Solution const& sol);
+
+  int outcomes(int stage) const;
   vector<int> nvars(int stage) const;
   vector<double> probs(stage_data const &stage) const;
 };

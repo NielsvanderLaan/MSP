@@ -44,7 +44,7 @@ void Stagewise::sddmip()
   size_t max_iter = 10;
   for (int iter = 0; iter != max_iter; ++iter)          // TODO: stopping criterion
   {
-    vector<vpath> paths = sample();
+    vector<vpath> paths = sample(5);
     vector<vsol> sols = forward(paths, false);
     cout << d_masters[0][0].obj() << '\n';
 
@@ -82,12 +82,41 @@ void Stagewise::backward(vector<vsol> const &sols)
   for (auto it = sols.rbegin(); it != sols.rend(); ++it)
   {
     --stage;
+    vector<Cut> cuts;
+    cuts.reserve(it->size());
     for (Solution const &sol : *it)
-    {
-      Cut cut = sddp_cut(stage, sol);     // add cuts in bulk? (scaled cuts depend on previous cuts)
+      cuts.push_back(scaled_cut(stage, sol));
+
+    for (Cut &cut : cuts)
       add_cut(cut, stage);
-    }
+
   }
+}
+
+Cut Stagewise::scaled_cut(int stage, const Solution &sol, double tol)
+{
+  Cut ret;
+  vector<int> path_nvars = nvars(stage);
+
+  double rho = sol.theta_n();
+  double crho;
+
+  init_enums(stage + 1, sol);
+
+  do
+  {
+    ret = Cut(path_nvars);
+    crho = -rho;
+
+    for (Enumerator &gen : d_enumerators[stage + 1])
+    {
+      ret += gen.d_data.d_prob * gen.opt_cut(rho, tol);
+      crho -= gen.d_data.d_prob * gen.crho();
+    }
+    rho += crho / (1 + ret.d_tau.back());
+  } while (crho > tol);
+
+  return ret;
 }
 
 
@@ -115,6 +144,7 @@ void Stagewise::solve(int stage, int node, bool lp, bool force)
   d_masters[stage][node].solve_lp();
 }
 
+
 Cut Stagewise::sddp_cut(int stage, Solution const &sol)
 {
   Cut ret(nvars(stage));
@@ -131,6 +161,19 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
 Cut Stagewise::fenchel_cut(int stage, int node, double tol)
 {
   return d_fenchel[stage][node].feas_cut(d_masters[stage][node].forward(), tol);
+}
+
+void Stagewise::init_enums(int stage, const Solution &sol)
+{
+  for (int child = 0; child != outcomes(stage); ++child)
+  {
+    Master &sub = d_masters[stage][child];
+    sub.update(sol);
+    sub.solve_mip();
+
+    d_enumerators[stage][child].set_mp(sol);
+    d_enumerators[stage][child].add_point(sub.forward());
+  }
 }
 
 
@@ -150,7 +193,14 @@ void Stagewise::add_cut(Cut &cut, int stage)
   for (Master &master : d_masters[stage])
     master.add(cut);
 
-  // TODO: update enumerators etc.
+  for (int lvl = stage; lvl != d_masters.size(); ++lvl)
+  {
+    for (Enumerator &gen : d_enumerators[lvl])
+      gen.add_cut(cut);
+
+    for (Enumerator &fenchel : d_fenchel[lvl])
+      fenchel.add_cut(cut);
+  }
 }
 
 
@@ -243,4 +293,9 @@ vector<double> Stagewise::probs(stage_data const &stage) const
   for (NodeData const &data : stage)
     probs.push_back(data.d_prob);
   return probs;
+}
+
+int Stagewise::outcomes(int stage) const
+{
+  return d_stages[stage].size();
 }
