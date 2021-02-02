@@ -19,23 +19,23 @@ void Enumerator::add_cut_to_sp(Cut const &cut)
   for (size_t stage = 0; stage != depth; ++stage)
     lhs.addTerms(cut.d_beta[stage].memptr(), d_x[stage].data(), d_x[stage].size());
 
-  d_sp.addConstr(lhs >= cut.d_alpha);
+  d_sp->addConstr(lhs >= cut.d_alpha);
 
-  d_sp.update();
+  d_sp->update();
 }
 
 void Enumerator::add_cut_to_mp(Cut const &cut)
 {
   int idx = cut.depth() - 1;
 
-  GRBConstr *mp_cons = d_mp.getConstrs();
+  GRBConstr *mp_cons = d_mp->getConstrs();
 
   for (size_t con = d_points.size() - 1; con != -1; --con)
   {
     GRBConstr &mp_cut = mp_cons[con];
     if (d_directions[con])
     {
-      d_mp.remove(mp_cut);
+      d_mp->remove(mp_cut);
       d_points.erase(d_points.begin() + con);
       d_directions.erase(d_directions.begin() + con);
       continue;
@@ -46,11 +46,11 @@ void Enumerator::add_cut_to_mp(Cut const &cut)
     point.d_theta[idx] += diff;
 
     if (idx < d_tau.size())
-      d_mp.chgCoeff(mp_cut, d_tau[idx], -point.d_theta[idx]);
+      d_mp->chgCoeff(mp_cut, d_tau[idx], -point.d_theta[idx]);
     else
       mp_cut.set(GRB_DoubleAttr_RHS, mp_cut.get(GRB_DoubleAttr_RHS) + diff);
   }
 
   delete[] mp_cons;
-  d_mp.update();
+  d_mp->update();
 }

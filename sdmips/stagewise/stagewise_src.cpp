@@ -26,22 +26,18 @@ void Stagewise::decom(GRBEnv &env)
     for (NodeData const &data : stage)
     {
       nodes.back() = data;
-      Enumerator enumerator {nodes, path, path.size() - 1, leaf, env};
-      Enumerator fenchel {nodes, path, path.size(), leaf, env};
-
       masters.emplace_back(Master {data, leaf, env});
-      enums.push_back(enumerator);
-      fenchels.push_back(fenchel);
+      enums.emplace_back(Enumerator {nodes, path, path.size() - 1, leaf, env});
+      fenchels.emplace_back(Enumerator {nodes, path, path.size(), leaf, env});
     }
 
     d_masters.emplace_back(move(masters));     // emplace_back(move(masters))
-    d_enumerators.push_back(enums);   // emplace_back(move(enums))
-    d_fenchel.push_back(fenchels);
+    d_enumerators.emplace_back(move(enums));   // emplace_back(move(enums))
+    d_fenchel.emplace_back(move(fenchels));
 
     nodes.back() = stage.front().to_box();
   }
 }
-
 
 void Stagewise::sddmip()
 {

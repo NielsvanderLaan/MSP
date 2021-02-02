@@ -2,21 +2,21 @@
 
 Enumerator::Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env)
 :
-d_data(nodes[path.back()]),
-d_mp(env),
-d_sp(env)
+d_data(nodes[path.back()])
 {
-  d_sp.set(GRB_DoubleParam_MIPGapAbs, 1e-4);
-  d_sp.set(GRB_DoubleParam_MIPGap, 0.0);
-  d_sp.set(GRB_DoubleParam_TimeLimit, 60);
+  d_mp = new GRBModel(env);
+  d_sp = new GRBModel(env);
+  d_sp->set(GRB_DoubleParam_MIPGapAbs, 1e-4);
+  d_sp->set(GRB_DoubleParam_MIPGap, 0.0);
+  d_sp->set(GRB_DoubleParam_TimeLimit, 60);
 
-  d_alpha = d_mp.addVar(-GRB_INFINITY, GRB_INFINITY, -1.0, GRB_CONTINUOUS);
+  d_alpha = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, -1.0, GRB_CONTINUOUS);
 
   for (size_t stage = 0; stage < mp_depth; ++stage)
   {
     int nvars = nodes[path[stage]].nvars();
     vector<double> lb(nvars, -GRB_INFINITY);
-    GRBVar *beta  = d_mp.addVars(lb.data(),
+    GRBVar *beta  = d_mp->addVars(lb.data(),
                                  nullptr,
                                  nullptr,
                                  nullptr,
@@ -27,7 +27,7 @@ d_sp(env)
   }
 
   for (size_t stage = 0; stage < mp_depth; ++stage)
-    d_tau.push_back(d_mp.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS));
+    d_tau.push_back(d_mp->addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS));
 
   if (mp_depth == path.size())
     set_bounds();
@@ -37,7 +37,7 @@ d_sp(env)
   for (int node : path)
   {
     int nvars = nodes[node].nvars();
-    GRBVar *xnode = d_sp.addVars(nodes[node].d_lb.memptr(),
+    GRBVar *xnode = d_sp->addVars(nodes[node].d_lb.memptr(),
                                  nodes[node].d_ub.memptr(),
                                  nodes[node].d_costs.memptr(),
                                  nodes[node].d_types.memptr(),
@@ -48,7 +48,7 @@ d_sp(env)
   }
 
   for (auto it = path.begin(); it != path.end(); ++it)
-    d_theta.push_back(d_sp.addVar(nodes[*it].d_L,
+    d_theta.push_back(d_sp->addVar(nodes[*it].d_L,
                                   GRB_INFINITY,
                                   1.0,
                                   GRB_CONTINUOUS));
@@ -73,25 +73,26 @@ d_sp(env)
         lhs[iter.col()] += *iter * d_x[stage - 1][iter.row()];
     }
 
-    delete[] d_sp.addConstrs(lhs,
+    delete[] d_sp->addConstrs(lhs,
                              data.d_senses.memptr(),
                              data.d_rhs.memptr(),
                              nullptr,
                              data.ncons());
   }
-  d_mp.update();
-  d_sp.update();
+  d_mp->update();
+  d_sp->update();
 }
 
 Enumerator::Enumerator(const Enumerator &other)
 :
 d_data(other.d_data),
-d_mp(other.d_mp),
-d_sp(other.d_sp),
 d_points(other.d_points),
 d_directions(other.d_directions)
 {
-  GRBVar *mp_vars = d_mp.getVars();
+  d_mp = new GRBModel(*other.d_mp);
+  d_sp = new GRBModel(*other.d_sp);
+
+  GRBVar *mp_vars = d_mp->getVars();
   d_alpha = mp_vars[0];
   int start = 1;
   for (auto it = other.d_beta.begin(); it != other.d_beta.end(); ++it)
@@ -103,7 +104,7 @@ d_directions(other.d_directions)
 
   for (size_t var = 0; var != other.d_tau.size(); ++var)
     d_tau.push_back(mp_vars[start + var]);
-  GRBVar *sub_vars = d_sp.getVars();
+  GRBVar *sub_vars = d_sp->getVars();
 
   start = 0;
   for (auto it = other.d_x.begin(); it != other.d_x.end(); ++it)
@@ -119,14 +120,35 @@ d_directions(other.d_directions)
   delete[] mp_vars;
   delete[] sub_vars;
 
-  d_mp.update();
-  d_sp.update();
-
+  d_mp->update();
+  d_sp->update();
 }
 
+Enumerator::Enumerator(Enumerator &&other)
+:
+d_data(other.d_data),
+d_mp(other.d_mp),
+d_alpha(other.d_alpha),
+d_beta(other.d_beta),
+d_tau(other.d_tau),
+d_sp(other.d_sp),
+d_x(other.d_x),
+d_theta(other.d_theta),
+d_points(other.d_points),
+d_directions(other.d_directions)
+{
+  other.d_sp = nullptr;
+  other.d_mp = nullptr;
+}
 
+Enumerator::~Enumerator()
+{
+  if (d_mp)
+    delete d_mp;
 
-
+  if (d_sp)
+    delete d_sp;
+}
 
 
 
