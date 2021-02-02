@@ -16,11 +16,11 @@ class Master
 public:
   NodeData const &d_data;
 
-  GRBModel d_mip;
+  GRBModel *d_mip;
   GRBVar d_mip_theta;
   vvar d_mip_xvars;
 
-  GRBModel d_lp;            // nodal relaxation
+  GRBModel *d_lp;            // nodal relaxation
   GRBVar d_lp_theta;        // costs-to-go
   vvar d_lp_xvars;          // decision variables
 
@@ -31,7 +31,8 @@ public:
 
   Master(NodeData const &data, bool leaf, GRBEnv &env);
   Master(const Master &other);
-  Master(Master &&other) = delete;
+  Master(Master &&other);
+  ~Master();
 
   Cut opt_cut();
 

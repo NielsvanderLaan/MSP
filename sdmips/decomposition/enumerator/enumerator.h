@@ -12,7 +12,7 @@ typedef vector<GRBVar> vvar;
 class Enumerator
 {
 public:
-  NodeData const &d_data;
+  NodeData d_data;
   GRBModel d_mp;
   GRBVar d_alpha;        // intercept
   vector<vvar> d_beta;   // d_beta[0] --> x_1, ..., x_a(n)

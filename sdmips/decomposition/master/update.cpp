@@ -21,14 +21,14 @@ void Master::update(Solution const &sol)
       mip_rhs.push_back(rhs_val);
   }
 
-  GRBConstr *mip_cons = d_mip.getConstrs();
-  d_mip.set(GRB_DoubleAttr_RHS, mip_cons, mip_rhs.data(), mip_rhs.size());
+  GRBConstr *mip_cons = d_mip->getConstrs();
+  d_mip->set(GRB_DoubleAttr_RHS, mip_cons, mip_rhs.data(), mip_rhs.size());
   delete[] mip_cons;
 
-  GRBConstr *lp_cons = d_lp.getConstrs();
-  d_lp.set(GRB_DoubleAttr_RHS, lp_cons, lp_rhs.data(), lp_rhs.size());
+  GRBConstr *lp_cons = d_lp->getConstrs();
+  d_lp->set(GRB_DoubleAttr_RHS, lp_cons, lp_rhs.data(), lp_rhs.size());
   delete[] lp_cons;
 
-  d_mip.update();
-  d_lp.update();
+  d_mip->update();
+  d_lp->update();
 }

@@ -2,7 +2,7 @@
 
 NodeData NodeData::to_box() const
 {
-  /*
+
   NodeData copy = *this;
   if (d_stage == 1)
     return copy;
@@ -16,6 +16,5 @@ NodeData NodeData::to_box() const
                                                     copy.ncons() - 1,
                                                     copy.ncons());
   return copy;
-   */
-  return *this;
+
 }

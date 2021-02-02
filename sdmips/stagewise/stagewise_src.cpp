@@ -26,31 +26,20 @@ void Stagewise::decom(GRBEnv &env)
     for (NodeData const &data : stage)
     {
       nodes.back() = data;
-      Master master {data, leaf, env};
       Enumerator enumerator {nodes, path, path.size() - 1, leaf, env};
       Enumerator fenchel {nodes, path, path.size(), leaf, env};
 
-      masters.push_back(master);
+      masters.emplace_back(Master {data, leaf, env});
       enums.push_back(enumerator);
       fenchels.push_back(fenchel);
     }
 
-    cout << "start\n";
-    for (auto &f : d_fenchel)
-    {
-      for (auto &e : f)
-        cout << e.d_data.d_stage << '\n';
-    }
-    cout << "end\n";
-
-    d_masters.push_back(masters);
-    d_enumerators.push_back(enums);
+    d_masters.emplace_back(move(masters));     // emplace_back(move(masters))
+    d_enumerators.push_back(enums);   // emplace_back(move(enums))
     d_fenchel.push_back(fenchels);
 
-
-    //nodes.back() = stage.front().to_box();
+    nodes.back() = stage.front().to_box();
   }
-  exit(1);
 }
 
 
@@ -133,7 +122,7 @@ void Stagewise::solve(int stage, int node, bool lp, bool force)
 Cut Stagewise::sddp_cut(int stage, Solution const &sol)
 {
   Cut ret(nvars(stage));
-  vmaster subs = d_masters[stage + 1];
+  vmaster &subs = d_masters[stage + 1];
 
   for (int child = 0; child != subs.size(); ++child)
   {
@@ -145,9 +134,6 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
 
 Cut Stagewise::fenchel_cut(int stage, int node, double tol)
 {
-  cout << d_fenchel[stage][node].d_data.d_stage << endl;
-  exit(1);
-
   return d_fenchel[stage][node].feas_cut(d_masters[stage][node].forward(), tol);
 }
 

@@ -2,23 +2,23 @@
 
 void Master::solve_lp()
 {
-  d_lp.optimize();
-  assert(d_lp.get(GRB_IntAttr_Status) == 2);
+  d_lp->optimize();
+  assert(d_lp->get(GRB_IntAttr_Status) == 2);
   d_x_n = lp_xvals();
   d_theta_n = lp_theta();
 }
 
 void Master::solve_mip()
 {
-  d_mip.optimize();
-  assert(d_mip.get(GRB_IntAttr_Status) == 2);
+  d_mip->optimize();
+  assert(d_mip->get(GRB_IntAttr_Status) == 2);
   d_x_n = mip_xvals();
   d_theta_n = mip_theta();
 }
 
 arma::vec Master::mip_xvals()
 {
-  double *xvals = d_mip.get(GRB_DoubleAttr_X, d_mip_xvars.data(), d_mip_xvars.size());
+  double *xvals = d_mip->get(GRB_DoubleAttr_X, d_mip_xvars.data(), d_mip_xvars.size());
   arma::vec ret(xvals, d_mip_xvars.size());
   delete[] xvals;
   return ret;
@@ -31,7 +31,7 @@ double Master::mip_theta()
 
 arma::vec Master::lp_xvals()
 {
-  double *xvals = d_lp.get(GRB_DoubleAttr_X, d_lp_xvars.data(), d_lp_xvars.size());
+  double *xvals = d_lp->get(GRB_DoubleAttr_X, d_lp_xvars.data(), d_lp_xvars.size());
   arma::vec ret(xvals, d_lp_xvars.size());
   delete[] xvals;
   return ret;
@@ -61,10 +61,10 @@ bool Master::integer()
 
 arma::vec Master::multipliers()
 {
-  GRBConstr *cons = d_lp.getConstrs();
+  GRBConstr *cons = d_lp->getConstrs();
   int ncons = d_data.ncons() + d_cuts.size();
 
-  double *pi = d_lp.get(GRB_DoubleAttr_Pi, cons, ncons);
+  double *pi = d_lp->get(GRB_DoubleAttr_Pi, cons, ncons);
   arma::vec ret(pi, ncons);
 
   delete[] cons;
@@ -74,15 +74,15 @@ arma::vec Master::multipliers()
 
 double Master::obj()
 {
-  return d_lp.get(GRB_DoubleAttr_ObjBound);
+  return d_lp->get(GRB_DoubleAttr_ObjBound);
 }
 
 void Master::set_rho(double rho)
 {
   double diff = rho - d_state.d_theta.back() ;
   d_state.d_theta.back() = rho;
-  GRBConstr *cons = d_lp.getConstrs();
-  double *rhs = d_lp.get(GRB_DoubleAttr_RHS, cons + d_data.ncons(), d_cuts.size());
+  GRBConstr *cons = d_lp->getConstrs();
+  double *rhs = d_lp->get(GRB_DoubleAttr_RHS, cons + d_data.ncons(), d_cuts.size());
 
   for (size_t cut = 0; cut != d_cuts.size(); ++cut)
   {
@@ -90,8 +90,8 @@ void Master::set_rho(double rho)
     rhs[cut] -= diff * tau[tau.size() - 2];
   }
 
-  d_lp.set(GRB_DoubleAttr_RHS, cons + d_data.ncons(), rhs, d_cuts.size());
-  d_lp.update();
+  d_lp->set(GRB_DoubleAttr_RHS, cons + d_data.ncons(), rhs, d_cuts.size());
+  d_lp->update();
 
   delete[] cons;
   delete[] rhs;
