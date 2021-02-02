@@ -8,7 +8,8 @@
 
 typedef vector<NodeData> stage_data;
 typedef vector<Master> vmaster;
-typedef vector<int> path;
+typedef vector<Enumerator> v_enum;
+typedef vector<int> vpath;
 typedef vector<Solution> vsol;
 
 class Stagewise
@@ -18,6 +19,8 @@ public:
 
   vector<stage_data> d_stages;
   vector<vmaster> d_masters;
+  vector<v_enum> d_enumerators;
+  vector<v_enum> d_fenchel;
 
   void add_node(NodeData const &data);
 
@@ -25,18 +28,20 @@ public:
   void decom(GRBEnv &env);
 
   void sddmip();
-  vector<vsol> forward(vector<path> &paths);
+  vector<vsol> forward(vector<vpath> &paths, bool lp);
   void backward(vector<vsol> const &sols);
-  vector<path> sample(size_t nsamples = 30);
-  vector<path> enumerate_paths(vector<path> paths = vector<path> (1));
+  vector<vpath> sample(size_t nsamples = 30);
+  vector<vpath> enumerate_paths(vector<vpath> paths = vector<vpath> (1));
 
-  void solve(int stage, int node);
+  void solve(int stage, int node, bool lp, bool force);
+  bool add_cp(Cut &cut, int stage, int node, double tol = 1e-4);
   void add_cut(Cut &cut, int stage);
 
   Cut sddp_cut(int stage, Solution const &sol);        // has to be valid for Q_t (stage-specific)
-  Cut fenchel_cut(int stage, int node);                // has to be valid for X_n (node-specific)
+  Cut fenchel_cut(int stage, int node, double tol = 1e-4);                // has to be valid for X_n (node-specific)
 
   vector<int> nvars(int stage) const;
+  vector<double> probs(stage_data const &stage) const;
 };
 
 #endif //MSP_STAGEWISE_H

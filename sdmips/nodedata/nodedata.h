@@ -27,7 +27,11 @@ public:
   arma::Col<char> d_types;
   arma::Col<char> d_senses;
 
+  arma::uvec d_fixed_constrs;
+
+
   GRBModel to_model(GRBEnv &env, bool lp = false) const;
+  NodeData to_box() const;
 
   vvar add_to_lsde(GRBModel &lsde, vvar const& parent_vars, double corr = 1.0) const;
 

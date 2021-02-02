@@ -12,7 +12,7 @@ typedef vector<GRBVar> vvar;
 class Enumerator
 {
 public:
-  NodeData &d_data;
+  NodeData const &d_data;
   GRBModel d_mp;
   GRBVar d_alpha;        // intercept
   vector<vvar> d_beta;   // d_beta[0] --> x_1, ..., x_a(n)
@@ -25,12 +25,14 @@ public:
   vector<Solution> d_points;    // depth = n
   vector<bool> d_directions;
 
-  Enumerator(vector<NodeData> &nodes, vector<int> path, int mp_depth, bool leaf, GRBEnv &env);
+  Enumerator() = delete;
+  Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env);
   Enumerator(Enumerator const &other);
+  Enumerator(Enumerator &&other) = delete;
 
-  void add_cut(Cut &cut);
-  void add_cut_to_sp(Cut &cut);
-  void add_cut_to_mp(Cut &cut);
+  void add_cut(Cut const &cut);
+  void add_cut_to_sp(Cut const &cut);
+  void add_cut_to_mp(Cut const &cut);
 
   Cut opt_cut(double rho, double tol);
   Cut feas_cut(Solution const &sol, double tol);

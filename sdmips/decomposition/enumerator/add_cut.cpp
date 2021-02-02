@@ -1,6 +1,6 @@
 #include "enumerator.h"
 
-void Enumerator::add_cut(Cut &cut)
+void Enumerator::add_cut(Cut const &cut)
 {
   if (cut.d_feas)
     return;
@@ -9,7 +9,7 @@ void Enumerator::add_cut(Cut &cut)
   add_cut_to_mp(cut);
 }
 
-void Enumerator::add_cut_to_sp(Cut &cut)
+void Enumerator::add_cut_to_sp(Cut const &cut)
 {
   int depth = cut.depth();
 
@@ -24,7 +24,7 @@ void Enumerator::add_cut_to_sp(Cut &cut)
   d_sp.update();
 }
 
-void Enumerator::add_cut_to_mp(Cut &cut)
+void Enumerator::add_cut_to_mp(Cut const &cut)
 {
   int idx = cut.depth() - 1;
 

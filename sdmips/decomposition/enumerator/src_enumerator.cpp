@@ -87,6 +87,7 @@ Cut Enumerator::candidate()
 
 void Enumerator::add_point(Solution point, bool direction)
 {
+
   assert(point.depth() == d_data.d_stage);
   d_points.push_back(point);
   d_directions.push_back(direction);

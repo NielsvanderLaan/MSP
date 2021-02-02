@@ -2,71 +2,70 @@
 
 void Stagewise::decom(GRBEnv &env)
 {
-  d_masters.reserve(d_stages.size());
+  size_t nstages = d_stages.size();
+  d_masters.reserve(nstages);
+  d_enumerators.reserve(nstages);
+  d_fenchel.reserve(nstages);
 
+  vpath path {};
+  vector<NodeData> nodes;
   for (stage_data const &stage : d_stages)
   {
+    path.push_back(path.size());
+    nodes.resize(path.size());
+
     vmaster masters;
+    v_enum enums;
+    v_enum fenchels;
+    size_t outcomes = stage.size();
+    masters.reserve(outcomes);
+    enums.reserve(outcomes);
+    fenchels.reserve(outcomes);
+
+    bool leaf = (&stage == &d_stages.back());
     for (NodeData const &data : stage)
-      masters.emplace_back(Master{data, &stage == &d_stages.back(), env});
+    {
+      nodes.back() = data;
+      Master master {data, leaf, env};
+      Enumerator enumerator {nodes, path, path.size() - 1, leaf, env};
+      Enumerator fenchel {nodes, path, path.size(), leaf, env};
+
+      masters.push_back(master);
+      enums.push_back(enumerator);
+      fenchels.push_back(fenchel);
+    }
 
     d_masters.push_back(masters);
+    d_enumerators.push_back(enums);
+    d_fenchel.push_back(fenchels);
+
+    for (auto &f : d_fenchel)
+    {
+      for (auto &e : f)
+        cout << e.d_data.d_stage << '\n';
+    }
+    cout << "end\n";
+
+    //nodes.back() = stage.front().to_box();
   }
+  exit(1);
 }
+
 
 void Stagewise::sddmip()
 {
   size_t max_iter = 10;
-  for (int iter = 0; iter != max_iter; ++iter)    // TODO: stopping criterion
+  for (int iter = 0; iter != max_iter; ++iter)          // TODO: stopping criterion
   {
-    vector<path> paths = sample();
-    vector<vsol> sols = forward(paths);
+    vector<vpath> paths = sample();
+    vector<vsol> sols = forward(paths, false);
     cout << d_masters[0][0].obj() << '\n';
 
     backward(sols);
   }
 }
 
-vector<path> Stagewise::enumerate_paths(vector<path> paths)   // TODO
-{
-  int stage = paths[0].size();
-
-  vector<path> ret;
-  int outcomes = d_stages[stage].size();
-  ret.reserve(paths.size() * outcomes);
-
-  for (path &walk : paths)
-  {
-    for (int outcome = 0; outcome != outcomes; ++outcome)
-    {
-      path copy = walk;
-      copy.push_back(outcome);
-      ret.push_back(copy);
-    }
-  }
-
-  if (stage != d_stages.size() - 1)
-    return enumerate_paths(ret);
-
-  return ret;
-}
-
-
-vector<path> Stagewise::sample(size_t nsamples)   // TODO
-{
-  vector<path> ret(nsamples);
-
-  for (stage_data const &stage : d_stages)
-  {
-    uniform_int_distribution<int> uni(0, stage.size() - 1);
-    for (path &walk : ret)
-      walk.push_back(uni(d_engine));
-  }
-
-  return ret;
-}
-
-vector<vsol> Stagewise::forward(vector<path> &paths)
+vector<vsol> Stagewise::forward(vector<vpath> &paths, bool lp)
 {
   size_t nstages = d_stages.size();
   vector<vsol> ret(nstages - 1);
@@ -78,7 +77,7 @@ vector<vsol> Stagewise::forward(vector<path> &paths)
       int node = path[stage];
       int child = path[stage + 1];
 
-      solve(stage, node);
+      solve(stage, node, lp, true);
       Solution forward = d_masters[stage][node].forward();
       ret[stage].push_back(forward);
 
@@ -87,11 +86,6 @@ vector<vsol> Stagewise::forward(vector<path> &paths)
   }
   ret.begin()->resize(1);
   return ret;
-}
-
-void Stagewise::solve(int stage, int node)
-{
-  d_masters[stage][node].solve_lp();
 }
 
 void Stagewise::backward(vector<vsol> const &sols)
@@ -109,6 +103,31 @@ void Stagewise::backward(vector<vsol> const &sols)
   }
 }
 
+
+void Stagewise::solve(int stage, int node, bool lp, bool force)
+{
+  Master &master = d_masters[stage][node];
+
+  master.solve_lp();
+  if (lp)
+    return;
+
+  while (not master.integer())
+  {
+    Cut fenchel_cp = fenchel_cut(stage, node);
+    if (not add_cp(fenchel_cp, stage, node))    // mip could not be solved using cutting planes
+    {
+      if (force)
+        master.solve_mip();                        // use Gurobi
+      return;
+    }
+
+    master.solve_lp();
+  }
+
+  d_masters[stage][node].solve_lp();
+}
+
 Cut Stagewise::sddp_cut(int stage, Solution const &sol)
 {
   Cut ret(nvars(stage));
@@ -122,8 +141,28 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
   return ret;
 }
 
+Cut Stagewise::fenchel_cut(int stage, int node, double tol)
+{
+  cout << d_fenchel[stage][node].d_data.d_stage << endl;
+  exit(1);
+
+  return d_fenchel[stage][node].feas_cut(d_masters[stage][node].forward(), tol);
+}
+
+
+bool Stagewise::add_cp(Cut &cut, int stage, int node, double tol)
+{
+  if (cut.d_tau.back() > 0)
+    cut.scale();
+
+  return d_masters[stage][node].add_cut(cut, tol);
+}
+
 void Stagewise::add_cut(Cut &cut, int stage)
 {
+  if (cut.d_tau.back() > 0)
+    cut.scale();
+
   for (Master &master : d_masters[stage])
     master.add(cut);
 
@@ -131,6 +170,46 @@ void Stagewise::add_cut(Cut &cut, int stage)
 }
 
 
+
+vector<vpath> Stagewise::enumerate_paths(vector<vpath> paths)
+{
+  int stage = paths[0].size();
+
+  vector<vpath> ret;
+  int outcomes = d_stages[stage].size();
+  ret.reserve(paths.size() * outcomes);
+
+  for (vpath &path : paths)
+  {
+    for (int outcome = 0; outcome != outcomes; ++outcome)
+    {
+      vpath copy = path;
+      copy.push_back(outcome);
+      ret.push_back(copy);
+    }
+  }
+
+  if (stage != d_stages.size() - 1)
+    return enumerate_paths(ret);
+
+  return ret;
+}
+
+
+vector<vpath> Stagewise::sample(size_t nsamples)
+{
+  vector<vpath> ret(nsamples);
+
+  for (stage_data const &stage : d_stages)
+  {
+    vector<double> prob = probs(stage);
+    discrete_distribution<int> uni(prob.begin(), prob.end());
+    for (vpath &path : ret)
+      path.push_back(uni(d_engine));
+  }
+
+  return ret;
+}
 
 GRBModel Stagewise::lsde(GRBEnv &env)
 {
@@ -171,4 +250,13 @@ vector<int> Stagewise::nvars(int stage) const
   for (int lvl = 0; lvl != stage + 1; ++lvl)
     ret[lvl] = d_stages[lvl][0].nvars();
   return ret;
+}
+
+vector<double> Stagewise::probs(stage_data const &stage) const
+{
+  vector<double> probs;
+  probs.reserve(stage.size() - 1);
+  for (NodeData const &data : stage)
+    probs.push_back(data.d_prob);
+  return probs;
 }

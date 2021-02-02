@@ -30,8 +30,6 @@ bool Master::add_cut(Cut const &cut, double tol)
     d_mip.update();
   }
 
-
-
   return true;
 }
 

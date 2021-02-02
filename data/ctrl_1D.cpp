@@ -6,7 +6,7 @@ Stagewise ctrl_1D()
   mt19937 engine(seed);
   uniform_real_distribution<double> uni(0.5, 1.0);
 
-  vector<int> scenarios {1, 25, 25, 25};   // per stage
+  vector<int> scenarios {1, 10, 10, 10};   // per stage
   int stages = scenarios.size();
 
   sp_mat Amat(mat{{1,0}, {-1, 0}, {-1, 1}, {1, 1}});
@@ -14,8 +14,6 @@ Stagewise ctrl_1D()
   vec lb {0, 0, 0, 0};
   vec ub {M, M, 1, 1};
   Col<char> types {GRB_CONTINUOUS, GRB_CONTINUOUS, GRB_INTEGER, GRB_INTEGER};
-  types[2] = GRB_CONTINUOUS;
-  types[3] = GRB_CONTINUOUS;
   Col<char> senses {GRB_EQUAL, GRB_EQUAL};
 
   NodeData root {1,
@@ -50,7 +48,8 @@ Stagewise ctrl_1D()
                   Bmat,
                   vec{0.0, 1.0},
                   types,
-                  senses};
+                  senses,
+                  uvec{1}};
 
     //double step = 10.0 / (scenarios[stage] - 1);
     for (int s = 0; s != scenarios[stage]; ++s)

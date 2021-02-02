@@ -2,10 +2,6 @@
 
 bool Tree::add_cut(int id, Cut &cut, double tol)
 {
-  /*
-  if (any_of(cut.d_tau.begin(), cut.d_tau.end(), [](double val){ return val > 0; }))
-    cut.print();
-  */
   if (cut.d_tau.back() > 0)
     cut.scale();
 

@@ -31,6 +31,7 @@ public:
 
   Master(NodeData const &data, bool leaf, GRBEnv &env);
   Master(const Master &other);
+  Master(Master &&other) = delete;
 
   Cut opt_cut();
 

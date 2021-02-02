@@ -50,7 +50,7 @@ public:
   void init_enums(int node);
 
   vector<int> path_to(int id);
-  vector<int> nvars(int id);      // nvars of nodes on path to id
+  vector<int> nvars(int id);      // nvars of nodes on vpath to id
   bool is_leaf(int node);
 };
 

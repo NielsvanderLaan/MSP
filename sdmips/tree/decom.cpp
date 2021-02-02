@@ -11,21 +11,13 @@ void Tree::decom(GRBEnv &env)
     bool leaf = is_leaf(node);
     vector<int> path = path_to(node);
 
-    d_masters.push_back(Master(d_nodes[node],
-                               leaf,
-                               env));
+    Master master{d_nodes[node], leaf,env};
+    Enumerator enumerator{d_nodes, path,path.size() - 1, leaf,env};
+    Enumerator fenchel{d_nodes, path, path.size(), leaf, env};
 
-    d_enumerators.push_back(Enumerator(d_nodes,
-                                       path,
-                                       path.size() - 1,
-                                       leaf,
-                                       env));
-
-    d_fenchel.push_back(Enumerator(d_nodes,
-                                       path,
-                                       path.size(),
-                                       leaf,
-                                       env));
+    d_masters.push_back(master);
+    d_enumerators.push_back(enumerator);
+    d_fenchel.push_back(fenchel);
 
   }
 }

@@ -1,6 +1,6 @@
 #include "enumerator.h"
 
-Enumerator::Enumerator(vector<NodeData> &nodes, vector<int> path, int mp_depth, bool leaf, GRBEnv &env)
+Enumerator::Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env)
 :
 d_data(nodes[path.back()]),
 d_mp(env),
@@ -61,7 +61,7 @@ d_sp(env)
 
   for (size_t stage = 0; stage != path.size(); ++stage)
   {
-    NodeData &data = nodes[path[stage]];
+    NodeData const &data = nodes[path[stage]];
     GRBLinExpr lhs[data.ncons()];
 
     for (auto iter = data.d_Amat.begin(); iter != data.d_Amat.end(); ++iter)
@@ -121,6 +121,7 @@ d_directions(other.d_directions)
 
   d_mp.update();
   d_sp.update();
+
 }
 
 
