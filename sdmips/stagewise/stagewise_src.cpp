@@ -35,16 +35,18 @@ void Stagewise::decom(GRBEnv &env)
       fenchels.push_back(fenchel);
     }
 
-    d_masters.push_back(masters);
-    d_enumerators.push_back(enums);
-    d_fenchel.push_back(fenchels);
-
+    cout << "start\n";
     for (auto &f : d_fenchel)
     {
       for (auto &e : f)
         cout << e.d_data.d_stage << '\n';
     }
     cout << "end\n";
+
+    d_masters.push_back(masters);
+    d_enumerators.push_back(enums);
+    d_fenchel.push_back(fenchels);
+
 
     //nodes.back() = stage.front().to_box();
   }
