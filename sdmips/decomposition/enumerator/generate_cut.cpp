@@ -2,10 +2,12 @@
 
 Cut Enumerator::fdecom(double tol, bool reset)
 {
+  d_mp->write("mp_before.lp");
   if (reset) clear();
 
   Cut cut;
   bool first_strike = false;
+
 
   while (true)
   {
@@ -40,6 +42,9 @@ Cut Enumerator::fdecom(double tol, bool reset)
 
 numerical:                // numerical difficulties occured
     cout << "mp status: " << mp_status() << ". violation: " << mp_violation() << '\n';
+    cout << d_data.d_stage << '\n';
+    d_mp->write("mp.lp");
+    exit(8);
     if (not first_strike)
     {
       first_strike = true;

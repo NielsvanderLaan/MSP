@@ -42,7 +42,7 @@ double Enumerator::alpha() const
 
 double Enumerator::crho() const
 {
-  return d_mp->get(GRB_DoubleAttr_ObjVal) + alpha() - sub_bound();
+  return -d_mp->get(GRB_DoubleAttr_ObjVal) + alpha() - sub_bound();
 }
 
 void Enumerator::set_rho(double rho)
@@ -60,14 +60,23 @@ void Enumerator::set_mp(Solution const &sol)
 {
   int depth = sol.depth();
   for (size_t stage = 0; stage != depth; ++stage)
+  {
+    arma::vec x = -sol.d_x[stage];
     d_mp->set(GRB_DoubleAttr_Obj,
-             d_beta[stage].data(),
-             sol.d_x[stage].memptr(),
-             d_beta[stage].size());
+              d_beta[stage].data(),
+              x.memptr(),
+              d_beta[stage].size());
+  }
+  cout << "set_mp()\n";
+  sol.print();
+  cout << "done\n";
+
+  vector<double> theta = sol.d_theta;
+  for_each(theta.begin(), theta.end(), [](double &val){ val *= -1;});
 
   d_mp->set(GRB_DoubleAttr_Obj,
            d_tau.data(),
-           sol.d_theta.data(),
+           theta.data(),
            depth);
 
   d_mp->update();

@@ -10,8 +10,9 @@ d_data(nodes[path.back()])
   d_sp->set(GRB_DoubleParam_MIPGap, 0.0);
   d_sp->set(GRB_DoubleParam_TimeLimit, 60);
   d_mp->set(GRB_IntParam_Method, 1);
+  d_mp->set(GRB_IntAttr_ModelSense, -1);
 
-  d_alpha = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, -1.0, GRB_CONTINUOUS);
+  d_alpha = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, 1.0, GRB_CONTINUOUS);
 
   for (size_t stage = 0; stage < mp_depth; ++stage)
   {
@@ -28,7 +29,7 @@ d_data(nodes[path.back()])
   }
 
   for (size_t stage = 0; stage < mp_depth; ++stage)
-    d_tau.push_back(d_mp->addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS));
+    d_tau.push_back(d_mp->addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "tau_" + to_string(stage)));
 
   if (mp_depth == path.size())
     set_bounds();
