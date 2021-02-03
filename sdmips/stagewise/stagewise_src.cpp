@@ -107,7 +107,6 @@ Cut Stagewise::scaled_cut(int stage, const Solution &sol, double tol)
   {
     ret = Cut(path_nvars);
     crho = -rho;
-
     for (Enumerator &gen : d_enumerators[stage + 1])
     {
       ret += gen.d_data.d_prob * gen.opt_cut(rho, tol);
@@ -171,8 +170,10 @@ void Stagewise::init_enums(int stage, const Solution &sol)
     sub.update(sol);
     sub.solve_mip();
 
-    d_enumerators[stage][child].set_mp(sol);
-    d_enumerators[stage][child].add_point(sub.forward());
+    Enumerator &gen = d_enumerators[stage][child];
+    gen.set_mp(sol);
+    gen.add_point(sub.forward());
+    gen.prime(sub.forward());
   }
 }
 

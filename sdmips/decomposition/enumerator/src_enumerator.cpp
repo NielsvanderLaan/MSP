@@ -3,24 +3,6 @@
 void Enumerator::solve_mp()
 {
   d_mp->optimize();
-
-  int status = d_mp->get(GRB_IntAttr_Status);
-  if (status == 5)
-  {
-    d_mp->set(GRB_IntParam_ScaleFlag, 0);
-    d_mp->set(GRB_IntParam_NumericFocus, 3);
-    d_mp->set(GRB_IntParam_Presolve, 0);
-    d_mp->optimize();
-    status = d_mp->get(GRB_IntAttr_Status);
-  }
-
-  if (status != 2)
-  {
-    cout << status << '\n';
-    d_mp->write("mp.lp");
-  }
-
-  assert(status == 2);
 }
 
 void Enumerator::solve_sp()
@@ -31,6 +13,16 @@ void Enumerator::solve_sp()
 int Enumerator::sp_status() const
 {
   return d_sp->get(GRB_IntAttr_Status);
+}
+
+int Enumerator::mp_status() const
+{
+  return d_mp->get(GRB_IntAttr_Status);
+}
+
+double Enumerator::mp_violation() const
+{
+  return d_mp->get(GRB_DoubleAttr_ConstrVio) + d_mp->get(GRB_DoubleAttr_ConstrResidual);
 }
 
 double Enumerator::sub_val() const
@@ -212,5 +204,33 @@ void Enumerator::set_bounds(double M)
   vector<double> ub(d_tau.size(), M);
   d_mp->set(GRB_DoubleAttr_UB, d_tau.data(), ub.data(), ub.size());
 
+  d_mp->update();
+}
+
+void Enumerator::prime(Solution const &point)
+{
+  d_prime = point;
+}
+
+void Enumerator::set_mp(bool tight)
+{
+  d_mp->set(GRB_IntParam_ScaleFlag, tight ? 0 : -1);
+  d_mp->set(GRB_IntParam_NumericFocus, tight ? 3: 0);
+  d_mp->set(GRB_IntParam_Presolve, tight ? 0 : -1);
+}
+
+void Enumerator::clear()
+{
+  assert(d_points.size() == d_mp->get(GRB_IntAttr_NumConstrs));
+
+  GRBConstr *cons = d_mp->getConstrs();
+  for (size_t idx = 0; idx != d_points.size(); ++idx)
+    d_mp->remove(cons[idx]);
+  delete[] cons;
+
+  d_points.clear();
+  d_directions.clear();
+
+  add_point(d_prime);
   d_mp->update();
 }

@@ -25,13 +25,12 @@ int main()
    */
 
   Stagewise sw = ctrl_1D();
-  /*
+    /*
   GRBModel sw_model = sw.lsde(env);
   sw_model.set(GRB_IntParam_OutputFlag, 1);
   sw_model.optimize();
-  */
+    */
   cout << "SSDMIP\n";
-
   sw.decom(env);
   sw.sddmip();
 }

@@ -10,7 +10,7 @@ Stagewise ctrl_1D()
   int stages = scenarios.size();
 
   sp_mat Amat(mat{{1,0}, {-1, 0}, {-1, 1}, {1, 1}});
-  double M = GRB_INFINITY;
+  double M = 10.0;
   vec lb {0, 0, 0, 0};
   vec ub {M, M, 1, 1};
   Col<char> types {GRB_CONTINUOUS, GRB_CONTINUOUS, GRB_INTEGER, GRB_INTEGER};

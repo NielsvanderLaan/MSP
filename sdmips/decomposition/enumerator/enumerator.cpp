@@ -88,7 +88,8 @@ Enumerator::Enumerator(const Enumerator &other)
 :
 d_data(other.d_data),
 d_points(other.d_points),
-d_directions(other.d_directions)
+d_directions(other.d_directions),
+d_prime(other.d_prime)
 {
   d_mp = new GRBModel(*other.d_mp);
   d_sp = new GRBModel(*other.d_sp);
@@ -136,7 +137,8 @@ d_sp(other.d_sp),
 d_x(other.d_x),
 d_theta(other.d_theta),
 d_points(other.d_points),
-d_directions(other.d_directions)
+d_directions(other.d_directions),
+d_prime(other.d_prime)
 {
   other.d_sp = nullptr;
   other.d_mp = nullptr;

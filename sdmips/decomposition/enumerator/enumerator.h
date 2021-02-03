@@ -24,6 +24,7 @@ public:
 
   vector<Solution> d_points;    // depth = n
   vector<bool> d_directions;
+  Solution d_prime;
 
   Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env);
   Enumerator(Enumerator const &other);
@@ -36,9 +37,10 @@ public:
 
   Cut opt_cut(double rho, double tol);
   Cut feas_cut(Solution const &sol, double tol);
-  Cut fdecom(double tol);     // row generation / vertex enumeration
+  Cut fdecom(double tol, bool reset = false);     // row generation / vertex enumeration
     // mp management
   void solve_mp();
+  void clear();
   void set_mp(Solution const &sol);
   void add_point(Solution point, bool direction = false);
   Cut candidate();
@@ -53,10 +55,14 @@ public:
   double alpha() const;
   double sub_val() const;
   double sub_bound() const;
+  int mp_status() const;
+  double mp_violation() const;
     // setters
   void set_rho(double rho);
   void set_bounds(double M = 1e3);
   void disable_tau();
+  void prime(Solution const &point);
+  void set_mp(bool tight);
 };
 
 #endif //MSP_ENUMERATOR_H
