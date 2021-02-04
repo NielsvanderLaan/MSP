@@ -26,6 +26,7 @@ Cut Enumerator::fdecom(double tol, bool reset)
     }
 
     diff = cut.d_alpha - sub_val();
+
     if (diff < tol)
       break;
 

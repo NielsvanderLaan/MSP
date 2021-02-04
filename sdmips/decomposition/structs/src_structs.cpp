@@ -114,9 +114,8 @@ void Cut::scale()
 
 bool Cut::stable()
 {
-
+  return true;
 }
-
 
 
     // free functions

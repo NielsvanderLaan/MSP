@@ -41,12 +41,12 @@ void Stagewise::decom(GRBEnv &env)
 
 void Stagewise::sddmip()
 {
-  size_t max_iter = 10;
+  size_t max_iter = 25;
   for (int iter = 0; iter != max_iter; ++iter)          // TODO: stopping criterion
   {
     vector<vpath> paths = sample(5);
     vector<vsol> sols = forward(paths, false);
-    cout << d_masters[0][0].obj() << '\n';
+    cout << d_masters[0][0].obj() << endl;
 
     backward(sols);
   }

@@ -11,6 +11,7 @@ d_data(nodes[path.back()])
   d_sp->set(GRB_DoubleParam_TimeLimit, 60);
   d_mp->set(GRB_IntParam_Method, 1);
   d_mp->set(GRB_IntAttr_ModelSense, -1);
+  d_mp->set(GRB_DoubleParam_TimeLimit, 10);
 
 
   d_obj = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, 1.0, GRB_CONTINUOUS);
