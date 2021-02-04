@@ -69,6 +69,7 @@ struct Cut
 
   int depth() const;
   void scale();
+  bool stable();
   void print() const;
 };
 

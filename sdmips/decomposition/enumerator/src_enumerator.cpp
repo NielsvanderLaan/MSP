@@ -47,7 +47,8 @@ double Enumerator::crho() const
 
 void Enumerator::set_rho(double rho)
 {
-  d_tau.back().set(GRB_DoubleAttr_Obj, rho);
+  d_mp->chgCoeff(d_objcon, d_tau.back(), rho);
+  d_mp->update();
 }
 
 void Enumerator::disable_tau()
@@ -58,26 +59,15 @@ void Enumerator::disable_tau()
 
 void Enumerator::set_mp(Solution const &sol)
 {
-  int depth = sol.depth();
-  for (size_t stage = 0; stage != depth; ++stage)
+  //int depth = sol.depth();
+  for (size_t stage = 0; stage != d_beta.size(); ++stage)
   {
-    arma::vec x = -sol.d_x[stage];
-    d_mp->set(GRB_DoubleAttr_Obj,
-              d_beta[stage].data(),
-              x.memptr(),
-              d_beta[stage].size());
+    for (size_t var = 0; var != d_beta[stage].size(); ++var)
+      d_mp->chgCoeff(d_objcon, d_beta[stage][var], sol.d_x[stage][var]);
   }
-  cout << "set_mp()\n";
-  sol.print();
-  cout << "done\n";
 
-  vector<double> theta = sol.d_theta;
-  for_each(theta.begin(), theta.end(), [](double &val){ val *= -1;});
-
-  d_mp->set(GRB_DoubleAttr_Obj,
-           d_tau.data(),
-           theta.data(),
-           depth);
+  for (size_t var = 0; var != d_tau.size(); ++var)
+    d_mp->chgCoeff(d_objcon, d_tau[var], sol.d_theta[var]);
 
   d_mp->update();
 }
@@ -98,12 +88,14 @@ Cut Enumerator::candidate()
   vdouble tau_vals(vals, vals + d_tau.size());
   delete[] vals;
 
+  for_each(tau_vals.begin(), tau_vals.end(), [](double &val){ val = max(0.0, val);});
+
   return Cut {alpha(),
               beta_vals,
               tau_vals};
 }
 
-void Enumerator::add_point(Solution point, bool direction)
+void Enumerator::add_point(Solution point, bool direction, bool prime)
 {
   assert(point.depth() == d_data.d_stage);
   d_points.push_back(point);
@@ -127,6 +119,12 @@ void Enumerator::add_point(Solution point, bool direction)
     d_mp->addConstr(-beta_x - tau_theta <= rhs);
   else
     d_mp->addConstr(d_alpha - beta_x - tau_theta <= rhs);
+
+  if (prime)
+  {
+    assert(not direction);
+    d_obj.set(GRB_DoubleAttr_UB, rhs);
+  }
 
   d_mp->update();
 }
@@ -163,6 +161,7 @@ Solution Enumerator::direction()
   lp.set(GRB_IntParam_InfUnbdInfo, 1);
     // obtain unbounded ray
   lp.optimize();
+
   assert(lp.get(GRB_IntAttr_Status) == 5);
   double *ray = lp.get(GRB_DoubleAttr_UnbdRay, vars, nvars);
 
@@ -216,30 +215,25 @@ void Enumerator::set_bounds(double M)
   d_mp->update();
 }
 
-void Enumerator::prime(Solution const &point)
-{
-  d_prime = point;
-}
-
 void Enumerator::set_mp(bool tight)
 {
   d_mp->set(GRB_IntParam_ScaleFlag, tight ? 0 : -1);
   d_mp->set(GRB_IntParam_NumericFocus, tight ? 3: 0);
   d_mp->set(GRB_IntParam_Presolve, tight ? 0 : -1);
+  d_mp->reset();
 }
 
 void Enumerator::clear()
 {
-  assert(d_points.size() == d_mp->get(GRB_IntAttr_NumConstrs));
+  assert(d_mp->get(GRB_IntAttr_NumConstrs) == d_points.size() + 1);
 
   GRBConstr *cons = d_mp->getConstrs();
-  for (size_t idx = 0; idx != d_points.size(); ++idx)
+  for (size_t idx = 1; idx != d_mp->get(GRB_IntAttr_NumConstrs); ++idx)
     d_mp->remove(cons[idx]);
   delete[] cons;
 
   d_points.clear();
   d_directions.clear();
 
-  add_point(d_prime);
   d_mp->update();
 }

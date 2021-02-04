@@ -32,7 +32,7 @@ void Enumerator::add_cut_to_mp(Cut const &cut)
 
   for (size_t con = d_points.size() - 1; con != -1; --con)
   {
-    GRBConstr &mp_cut = mp_cons[con];
+    GRBConstr &mp_cut = mp_cons[con + 1];   // skip obj_con
     if (d_directions[con])
     {
       d_mp->remove(mp_cut);

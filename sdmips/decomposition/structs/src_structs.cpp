@@ -1,5 +1,10 @@
 #include "structs.h"
 
+static bool abs_compare(double a, double b)
+{
+  return (std::abs(a) < std::abs(b));
+}
+
 int Solution::depth() const
 {
   assert(d_x.size() == d_theta.size());
@@ -106,6 +111,13 @@ void Cut::scale()
   for_each(d_tau.begin(), d_tau.end(), [kappa](double &val){ val /= kappa; });
   d_tau.back() = 0;
 }
+
+bool Cut::stable()
+{
+
+}
+
+
 
     // free functions
 double compute_lhs(Cut const &cut, Solution const &sol)

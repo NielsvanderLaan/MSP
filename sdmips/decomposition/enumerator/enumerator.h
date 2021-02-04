@@ -14,9 +14,12 @@ class Enumerator
 public:
   NodeData d_data;
   GRBModel *d_mp;
+  GRBVar d_obj;
   GRBVar d_alpha;        // intercept
   vector<vvar> d_beta;   // d_beta[0] --> x_1, ..., x_a(n)
   vvar d_tau;            // d_tau[0] --> theta_1,..., theta_a(n)
+
+  GRBConstr d_objcon;
 
   GRBModel *d_sp;
   vector<vvar> d_x;      // x_1, ...., x_n
@@ -24,7 +27,6 @@ public:
 
   vector<Solution> d_points;    // depth = n
   vector<bool> d_directions;
-  Solution d_prime;
 
   Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env);
   Enumerator(Enumerator const &other);
@@ -42,7 +44,7 @@ public:
   void solve_mp();
   void clear();
   void set_mp(Solution const &sol);
-  void add_point(Solution point, bool direction = false);
+  void add_point(Solution point, bool direction, bool prime = false);
   Cut candidate();
     // sp management
   void solve_sp();
@@ -61,7 +63,6 @@ public:
   void set_rho(double rho);
   void set_bounds(double M = 1e3);
   void disable_tau();
-  void prime(Solution const &point);
   void set_mp(bool tight);
 };
 

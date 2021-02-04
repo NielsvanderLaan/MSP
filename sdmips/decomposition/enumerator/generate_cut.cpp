@@ -2,12 +2,11 @@
 
 Cut Enumerator::fdecom(double tol, bool reset)
 {
-  d_mp->write("mp_before.lp");
   if (reset) clear();
+  set_mp(false);              // relax mp
 
   Cut cut;
   bool first_strike = false;
-
 
   while (true)
   {
@@ -22,7 +21,6 @@ Cut Enumerator::fdecom(double tol, bool reset)
 
     if (sp_status() != 2)
     {
-      cout << "adding direction\n";
       add_point(direction(), true);
       continue;
     }
@@ -31,20 +29,19 @@ Cut Enumerator::fdecom(double tol, bool reset)
     if (diff < tol)
       break;
 
-    if (mp_violation() > max(diff - 1e-6, tol))
+    if (mp_violation() >= max(diff - 1e-6, tol))
       goto numerical;
 
-    add_point(point());
+    add_point(point(), false);
 
+    if (first_strike)
+      set_mp(false);
     first_strike = false;
-    set_mp(false);
+
     continue;
 
 numerical:                // numerical difficulties occured
-    cout << "mp status: " << mp_status() << ". violation: " << mp_violation() << '\n';
-    cout << d_data.d_stage << '\n';
-    d_mp->write("mp.lp");
-    exit(8);
+    //cout << "mp status: " << mp_status() << ". violation: " << mp_violation() << '\n';
     if (not first_strike)
     {
       first_strike = true;
@@ -54,12 +51,12 @@ numerical:                // numerical difficulties occured
     if (not reset)
       return fdecom(tol, true);
 
-    cerr << "Fdecom: unrecoverable numerical difficulties.\n";
+    cerr << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
     break;
   }
 
-  set_mp(false);              // relax mp
   cut.d_alpha = sub_bound();
+  assert(cut.depth() > 0);
 
   return cut;
 }

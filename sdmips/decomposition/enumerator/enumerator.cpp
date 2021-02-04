@@ -12,7 +12,11 @@ d_data(nodes[path.back()])
   d_mp->set(GRB_IntParam_Method, 1);
   d_mp->set(GRB_IntAttr_ModelSense, -1);
 
-  d_alpha = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, 1.0, GRB_CONTINUOUS);
+
+  d_obj = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, 1.0, GRB_CONTINUOUS);
+  d_alpha = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+
+  d_objcon = d_mp->addConstr(d_obj == d_alpha, "obj");
 
   for (size_t stage = 0; stage < mp_depth; ++stage)
   {
@@ -89,15 +93,15 @@ Enumerator::Enumerator(const Enumerator &other)
 :
 d_data(other.d_data),
 d_points(other.d_points),
-d_directions(other.d_directions),
-d_prime(other.d_prime)
+d_directions(other.d_directions)
 {
   d_mp = new GRBModel(*other.d_mp);
   d_sp = new GRBModel(*other.d_sp);
 
   GRBVar *mp_vars = d_mp->getVars();
-  d_alpha = mp_vars[0];
-  int start = 1;
+  d_obj = mp_vars[0];
+  d_alpha = mp_vars[1];
+  int start = 2;
   for (auto it = other.d_beta.begin(); it != other.d_beta.end(); ++it)
   {
     d_beta.push_back(vvar(mp_vars + start,
@@ -107,6 +111,9 @@ d_prime(other.d_prime)
 
   for (size_t var = 0; var != other.d_tau.size(); ++var)
     d_tau.push_back(mp_vars[start + var]);
+
+  d_objcon = d_mp->getConstrByName("obj");
+
   GRBVar *sub_vars = d_sp->getVars();
 
   start = 0;
@@ -131,15 +138,16 @@ Enumerator::Enumerator(Enumerator &&other)
 :
 d_data(other.d_data),
 d_mp(other.d_mp),
+d_obj(other.d_obj),
 d_alpha(other.d_alpha),
 d_beta(other.d_beta),
 d_tau(other.d_tau),
+d_objcon(other.d_objcon),
 d_sp(other.d_sp),
 d_x(other.d_x),
 d_theta(other.d_theta),
 d_points(other.d_points),
-d_directions(other.d_directions),
-d_prime(other.d_prime)
+d_directions(other.d_directions)
 {
   other.d_sp = nullptr;
   other.d_mp = nullptr;

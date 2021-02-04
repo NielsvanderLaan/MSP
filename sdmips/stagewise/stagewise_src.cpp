@@ -172,8 +172,7 @@ void Stagewise::init_enums(int stage, const Solution &sol)
 
     Enumerator &gen = d_enumerators[stage][child];
     gen.set_mp(sol);
-    gen.add_point(sub.forward());
-    gen.prime(sub.forward());
+    gen.add_point(sub.forward(), false, true);
   }
 }
 
