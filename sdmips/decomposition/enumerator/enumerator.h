@@ -37,11 +37,12 @@ public:
   void add_cut_to_sp(Cut const &cut);
   void add_cut_to_mp(Cut const &cut);
 
-  Cut opt_cut(double rho, double tol);
-  Cut feas_cut(Solution const &sol, double tol);
-  Cut fdecom(double tol, bool reset = false);     // row generation / vertex enumeration
+  Cut opt_cut(double rho, bool affine, double tol);
+  Cut feas_cut(Solution const &sol, bool affine, double tol);
+  Cut fdecom(double tol, bool affine, bool reset = false);
     // mp management
-  void solve_mp();
+  void optimize_mp();
+  Cut solve_mp(bool affine, double M);
   void clear();
   void set_mp(Solution const &sol);
   void add_point(Solution point, bool direction, bool prime = false);
@@ -61,9 +62,12 @@ public:
   double mp_violation() const;
     // setters
   void set_rho(double rho);
-  void set_bounds(double M = 1e3);
-  void disable_tau();
+  void set_bounds(bool affine, double M);
+  void set_tau_bounds(bool affine, double M);
   void set_mp(bool tight);
 };
+
+class mp_exception : public exception
+{};
 
 #endif //MSP_ENUMERATOR_H

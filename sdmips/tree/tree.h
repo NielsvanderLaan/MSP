@@ -33,19 +33,19 @@ public:
 
   GRBModel lsde(GRBEnv &env);             // constructs lsde
   void decom(GRBEnv &env);                // initializes master problems etc.
-  void SND();                           // solves using forward and backward passes
-  void forward(bool lp);
-  bool backward(int node = 0);
+  void SND(bool affine);                  // solves using forward and backward passes
+  void forward(bool affine, bool lp);
+  bool backward(bool affine, int node = 0);
 
-  void solve_master(int node, bool force, bool lp);   // cutting plane approach to SND the master problem in node n
+  void solve_master(int node, bool affine, bool lp, bool force);   // cutting plane approach to SND the master problem in node n
   bool add_cut(int id, Cut &cut, double tol = 1e-4);  // adds cuts to master problem and propagates it through the sdmips.
 
     //  optimality cuts
-  Cut sddp_cut(int node);                             // standard Benders' cuts
-  Cut scaled_cut(int node, double tol = 1e-4);        // scaled cuts (vertex enumeration)
-  Cut cpt_scaled_cut(int node, double tol = 1e-4);    // scaled cuts (using Fenchel cutting planes)
+  Cut sddp_cut(int node);                                          // standard Benders' cuts
+  Cut scaled_cut(int node, bool affine, double tol = 1e-4);        // scaled cuts (vertex enumeration)
+  Cut cpt_scaled_cut(int node, bool affine, double tol = 1e-4);    // scaled cuts (using Fenchel cutting planes)
     // cutting planes for MIPs
-  Cut fenchel_cut(int node, double tol = 1e-4);
+  Cut fenchel_cut(int node, bool affine, double tol = 1e-4);
 
   void init_enums(int node);
 

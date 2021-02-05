@@ -1,6 +1,6 @@
 #include "tree.h"
 
-void Tree::forward(bool lp)
+void Tree::forward(bool affine, bool lp)
 {
   queue<int> nodes;
   nodes.push(0);
@@ -10,7 +10,7 @@ void Tree::forward(bool lp)
     int node = nodes.front();
     nodes.pop();
 
-    solve_master(node, true, lp);
+    solve_master(node, affine, lp, true);
     Solution state = d_masters[node].forward();
 
     for (int child : d_children[node])

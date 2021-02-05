@@ -69,7 +69,7 @@ struct Cut
 
   int depth() const;
   void scale();
-  bool stable();
+  double abs_max();
   void print() const;
 };
 

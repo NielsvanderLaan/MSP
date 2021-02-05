@@ -27,19 +27,19 @@ public:
   GRBModel lsde(GRBEnv &env);
   void decom(GRBEnv &env);
 
-  void sddmip();
-  vector<vsol> forward(vector<vpath> &paths, bool lp);
-  void backward(vector<vsol> const &sols);
+  void sddmip(bool affine);
+  vector<vsol> forward(vector<vpath> &paths, bool affine, bool lp);
+  void backward(vector<vsol> const &sols, bool affine);
   vector<vpath> sample(size_t nsamples = 30);
   vector<vpath> enumerate_paths(vector<vpath> paths = vector<vpath> (1));
 
-  void solve(int stage, int node, bool lp, bool force);
+  void solve(int stage, int node, bool affine, bool lp, bool force);
   bool add_cp(Cut &cut, int stage, int node, double tol = 1e-4);
   void add_cut(Cut &cut, int stage);
 
   Cut sddp_cut(int stage, Solution const &sol);             // has to be valid for Q_t (stage-specific)
-  Cut scaled_cut(int stage, Solution const &sol, double tol = 1e-4);
-  Cut fenchel_cut(int stage, int node, double tol = 1e-4);                // has to be valid for X_n (node-specific)
+  Cut scaled_cut(int stage, Solution const &sol, bool affine, double tol = 1e-4);
+  Cut fenchel_cut(int stage, int node, bool affine, double tol = 1e-4);                // has to be valid for X_n (node-specific)
 
 
   void init_enums(int stage, Solution const& sol);

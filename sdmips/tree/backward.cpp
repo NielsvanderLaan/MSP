@@ -1,6 +1,6 @@
 #include "tree.h"
 
-bool Tree::backward(int node)
+bool Tree::backward(bool affine, int node)
 {
   bool ret = false;
 
@@ -9,12 +9,12 @@ bool Tree::backward(int node)
 
   for (int child : d_children[node])
   {
-    if (backward(child))                    // cut was added in one of the descendants
+    if (backward(affine,child))                    // cut was added in one of the descendants
       ret = true;
   }
 
-  //Cut cut = scaled_cut(node);               // TODO: choose by argument. Use abstract classes?
-  Cut cut = cpt_scaled_cut(node);
+  Cut cut = scaled_cut(node, affine);       // TODO: choose by argument. Use abstract classes?
+  //Cut cut = cpt_scaled_cut(false, node);
   //Cut cut = sddp_cut(node);
 
   if (add_cut(node, cut))

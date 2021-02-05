@@ -1,6 +1,6 @@
 #include "tree.h"
 
-Cut Tree::cpt_scaled_cut(int node, double tol)
+Cut Tree::cpt_scaled_cut(int node, bool affine, double tol)
 {
   Cut ret;
   vector<int> path_nvars = nvars(node);
@@ -21,8 +21,8 @@ Cut Tree::cpt_scaled_cut(int node, double tol)
       double qnm = d_nodes[child].d_prob / par_prob;
 
       master.set_rho(rho);
-      solve_master(child, false, false);      // SND MIP using Fenchel cuts
-      ret += qnm * master.opt_cut();                   // LP duality --> optimality cut
+      solve_master(child, affine, false, false);      // SND MIP using Fenchel cuts
+      ret += qnm * master.opt_cut();                           // LP duality --> optimality cut
       crho -= qnm * master.obj();
     }
 

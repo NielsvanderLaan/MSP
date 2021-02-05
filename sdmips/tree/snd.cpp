@@ -1,15 +1,13 @@
 #include "tree.h"
 
-void Tree::SND()
+void Tree::SND(bool affine)
 {
-  // TODO: time limit, print more info
-
   while (true)
   {
-    forward(false);
+    forward(affine, false);
     cout << d_masters[0].obj() << '\n';
 
-    if (not backward())    // no improvement possible
+    if (not backward(affine))    // no improvement possible
       break;
   }
 }

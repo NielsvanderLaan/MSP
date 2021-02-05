@@ -1,8 +1,10 @@
 #include "enumerator.h"
 
-void Enumerator::solve_mp()
+void Enumerator::optimize_mp()
 {
   d_mp->optimize();
+  if (mp_status() != 2)
+    throw mp_exception{};
 }
 
 void Enumerator::solve_sp()
@@ -51,12 +53,6 @@ void Enumerator::set_rho(double rho)
   d_mp->update();
 }
 
-void Enumerator::disable_tau()
-{
-  vector<double> zeros(d_tau.size(), 0.0);
-  d_mp->set(GRB_DoubleAttr_UB, d_tau.data(), zeros.data(), zeros.size());
-}
-
 void Enumerator::set_mp(Solution const &sol)
 {
   //int depth = sol.depth();
@@ -70,6 +66,22 @@ void Enumerator::set_mp(Solution const &sol)
     d_mp->chgCoeff(d_objcon, d_tau[var], sol.d_theta[var]);
 
   d_mp->update();
+}
+
+Cut Enumerator::solve_mp(bool affine, double M)
+{
+  optimize_mp();
+
+  Cut ret = candidate();
+  if (ret.abs_max() < M)
+    return ret;
+
+  double old_M = d_beta[0][0].get(GRB_DoubleAttr_UB);
+  set_bounds(M, affine);
+  optimize_mp();
+  set_bounds(old_M, affine);    // restore
+
+  return candidate();
 }
 
 Cut Enumerator::candidate()
@@ -196,7 +208,7 @@ void Enumerator::set_sub(Cut &cut)
   d_sp->update();
 }
 
-void Enumerator::set_bounds(double M)
+void Enumerator::set_bounds(bool affine, double M)
 {
   d_alpha.set(GRB_DoubleAttr_LB, -M);
   d_alpha.set(GRB_DoubleAttr_UB, M);
@@ -209,10 +221,13 @@ void Enumerator::set_bounds(double M)
     d_mp->set(GRB_DoubleAttr_UB, beta.data(), ub.data(), ub.size());
   }
 
-  vector<double> ub(d_tau.size(), M);
-  d_mp->set(GRB_DoubleAttr_UB, d_tau.data(), ub.data(), ub.size());
+  set_tau_bounds(affine, M);
+}
 
-  d_mp->update();
+void Enumerator::set_tau_bounds(bool affine, double M)
+{
+  vector<double> ub(d_tau.size(), affine ? 0.0 : M);
+  d_mp->set(GRB_DoubleAttr_UB, d_tau.data(), ub.data(), ub.size());
 }
 
 void Enumerator::set_mp(bool tight)

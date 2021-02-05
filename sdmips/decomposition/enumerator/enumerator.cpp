@@ -36,10 +36,8 @@ d_data(nodes[path.back()])
   for (size_t stage = 0; stage < mp_depth; ++stage)
     d_tau.push_back(d_mp->addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "tau_" + to_string(stage)));
 
-  if (mp_depth == path.size())
-    set_bounds();
 
-  //disable_tau();
+  //switch_tau();
 
   for (int node : path)
   {

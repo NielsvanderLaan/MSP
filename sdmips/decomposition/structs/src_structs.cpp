@@ -112,10 +112,18 @@ void Cut::scale()
   d_tau.back() = 0;
 }
 
-bool Cut::stable()
+double Cut::abs_max()
 {
-  return true;
+  double ret = -1;
+  for (auto const &beta : d_beta)
+    ret = max(ret, abs(*max_element(beta.begin(), beta.end(), abs_compare)));
+
+  ret = max(ret, *max_element(d_tau.begin(), d_tau.end()));
+  ret = max(ret, abs(d_alpha));
+
+  return ret;
 }
+
 
 
     // free functions

@@ -39,20 +39,20 @@ void Stagewise::decom(GRBEnv &env)
   }
 }
 
-void Stagewise::sddmip()
+void Stagewise::sddmip(bool affine)
 {
   size_t max_iter = 25;
   for (int iter = 0; iter != max_iter; ++iter)          // TODO: stopping criterion
   {
     vector<vpath> paths = sample(5);
-    vector<vsol> sols = forward(paths, false);
+    vector<vsol> sols = forward(paths, affine, false);
     cout << d_masters[0][0].obj() << endl;
 
-    backward(sols);
+    backward(sols, affine);
   }
 }
 
-vector<vsol> Stagewise::forward(vector<vpath> &paths, bool lp)
+vector<vsol> Stagewise::forward(vector<vpath> &paths, bool affine, bool lp)
 {
   size_t nstages = d_stages.size();
   vector<vsol> ret(nstages - 1);
@@ -64,7 +64,7 @@ vector<vsol> Stagewise::forward(vector<vpath> &paths, bool lp)
       int node = path[stage];
       int child = path[stage + 1];
 
-      solve(stage, node, lp, true);
+      solve(stage, node, affine, lp, true);
       Solution forward = d_masters[stage][node].forward();
       ret[stage].push_back(forward);
 
@@ -75,7 +75,7 @@ vector<vsol> Stagewise::forward(vector<vpath> &paths, bool lp)
   return ret;
 }
 
-void Stagewise::backward(vector<vsol> const &sols)
+void Stagewise::backward(vector<vsol> const &sols, bool affine)
 {
   int stage = d_stages.size() - 1;
 
@@ -85,7 +85,7 @@ void Stagewise::backward(vector<vsol> const &sols)
     vector<Cut> cuts;
     cuts.reserve(it->size());
     for (Solution const &sol : *it)
-      cuts.push_back(scaled_cut(stage, sol));
+      cuts.push_back(scaled_cut(stage, sol, affine));
 
     for (Cut &cut : cuts)
       add_cut(cut, stage);
@@ -93,7 +93,7 @@ void Stagewise::backward(vector<vsol> const &sols)
   }
 }
 
-Cut Stagewise::scaled_cut(int stage, const Solution &sol, double tol)
+Cut Stagewise::scaled_cut(int stage, const Solution &sol, bool affine, double tol)
 {
   Cut ret;
   vector<int> path_nvars = nvars(stage);
@@ -109,7 +109,7 @@ Cut Stagewise::scaled_cut(int stage, const Solution &sol, double tol)
     crho = -rho;
     for (Enumerator &gen : d_enumerators[stage + 1])
     {
-      ret += gen.d_data.d_prob * gen.opt_cut(rho, tol);
+      ret += gen.d_data.d_prob * gen.opt_cut(rho, affine, tol);
       crho -= gen.d_data.d_prob * gen.crho();
     }
     rho += crho / (1 + ret.d_tau.back());
@@ -119,17 +119,17 @@ Cut Stagewise::scaled_cut(int stage, const Solution &sol, double tol)
 }
 
 
-void Stagewise::solve(int stage, int node, bool lp, bool force)
+void Stagewise::solve(int stage, int node, bool affine, bool lp, bool force)
 {
   Master &master = d_masters[stage][node];
-
   master.solve_lp();
+
   if (lp)
     return;
 
   while (not master.integer())
   {
-    Cut fenchel_cp = fenchel_cut(stage, node);
+    Cut fenchel_cp = fenchel_cut(stage, node, affine);
     if (not add_cp(fenchel_cp, stage, node))    // mip could not be solved using cutting planes
     {
       if (force)
@@ -157,9 +157,9 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
   return ret;
 }
 
-Cut Stagewise::fenchel_cut(int stage, int node, double tol)
+Cut Stagewise::fenchel_cut(int stage, int node, bool affine, double tol)
 {
-  return d_fenchel[stage][node].feas_cut(d_masters[stage][node].forward(), tol);
+  return d_fenchel[stage][node].feas_cut(d_masters[stage][node].forward(), affine, tol);
 }
 
 void Stagewise::init_enums(int stage, const Solution &sol)
@@ -175,7 +175,6 @@ void Stagewise::init_enums(int stage, const Solution &sol)
     gen.add_point(sub.forward(), false, true);
   }
 }
-
 
 bool Stagewise::add_cp(Cut &cut, int stage, int node, double tol)
 {
