@@ -31,7 +31,7 @@ public:
 
 
   GRBModel to_model(GRBEnv &env, bool lp = false) const;
-  NodeData to_box() const;
+  void to_box(bool wide = false);
 
   vvar add_to_lsde(GRBModel &lsde, vvar const& parent_vars, double corr = 1.0) const;
 

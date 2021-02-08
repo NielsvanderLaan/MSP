@@ -26,16 +26,17 @@ void Stagewise::decom(GRBEnv &env)
     for (NodeData const &data : stage)
     {
       nodes.back() = data;
+
       masters.emplace_back(Master {data, leaf, env});
       enums.emplace_back(Enumerator {nodes, path, path.size() - 1, leaf, env});
       fenchels.emplace_back(Enumerator {nodes, path, path.size(), leaf, env});
     }
 
-    d_masters.emplace_back(move(masters));     // emplace_back(move(masters))
-    d_enumerators.emplace_back(move(enums));   // emplace_back(move(enums))
+    d_masters.emplace_back(move(masters));
+    d_enumerators.emplace_back(move(enums));
     d_fenchel.emplace_back(move(fenchels));
 
-    nodes.back() = stage.front().to_box();
+    nodes.back().to_box();
   }
 }
 
@@ -85,11 +86,13 @@ void Stagewise::backward(vector<vsol> const &sols, bool affine)
     vector<Cut> cuts;
     cuts.reserve(it->size());
     for (Solution const &sol : *it)
+    {
+      //cuts.push_back(sddp_cut(stage, sol));
       cuts.push_back(scaled_cut(stage, sol, affine));
+    }
 
     for (Cut &cut : cuts)
       add_cut(cut, stage);
-
   }
 }
 
@@ -184,7 +187,7 @@ bool Stagewise::add_cp(Cut &cut, int stage, int node, double tol)
   return d_masters[stage][node].add_cut(cut, tol);
 }
 
-void Stagewise::add_cut(Cut &cut, int stage)
+void Stagewise::add_cut(Cut &cut, int stage)        // assumes shared outer approximations
 {
   if (cut.d_tau.back() > 0)
     cut.scale();
@@ -192,17 +195,15 @@ void Stagewise::add_cut(Cut &cut, int stage)
   for (Master &master : d_masters[stage])
     master.add(cut);
 
-  for (int lvl = stage; lvl != d_masters.size(); ++lvl)
+  for (Enumerator &fenchel : d_fenchel[stage])
+    fenchel.add_cut(cut);
+
+  for (int lvl = stage; lvl != stage + 2; ++lvl)
   {
     for (Enumerator &gen : d_enumerators[lvl])
       gen.add_cut(cut);
-
-    for (Enumerator &fenchel : d_fenchel[lvl])
-      fenchel.add_cut(cut);
   }
 }
-
-
 
 vector<vpath> Stagewise::enumerate_paths(vector<vpath> paths)
 {

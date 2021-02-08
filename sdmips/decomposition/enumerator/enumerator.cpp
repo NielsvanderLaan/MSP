@@ -13,7 +13,6 @@ d_data(nodes[path.back()])
   d_mp->set(GRB_IntAttr_ModelSense, -1);
   d_mp->set(GRB_DoubleParam_TimeLimit, 10);
 
-
   d_obj = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, 1.0, GRB_CONTINUOUS);
   d_alpha = d_mp->addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
 
@@ -37,18 +36,16 @@ d_data(nodes[path.back()])
     d_tau.push_back(d_mp->addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "tau_" + to_string(stage)));
 
 
-  //switch_tau();
-
   for (int node : path)
   {
-    int nvars = nodes[node].nvars();
-    GRBVar *xnode = d_sp->addVars(nodes[node].d_lb.memptr(),
-                                 nodes[node].d_ub.memptr(),
-                                 nodes[node].d_costs.memptr(),
-                                 nodes[node].d_types.memptr(),
+    NodeData const &data = nodes[node];
+    GRBVar *xnode = d_sp->addVars(data.d_lb.memptr(),
+                                 data.d_ub.memptr(),
+                                 data.d_costs.memptr(),
+                                 data.d_types.memptr(),
                                  nullptr,
-                                 nvars);
-    d_x.push_back(vvar(xnode, xnode + nvars));
+                                  data.nvars());
+    d_x.push_back(vvar(xnode, xnode + data.nvars()));
     delete[] xnode;
   }
 
