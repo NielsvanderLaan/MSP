@@ -28,6 +28,7 @@ public:
   vector<Solution> d_points;    // depth = n
   vector<bool> d_directions;
 
+  Enumerator() = default;
   Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env);
   Enumerator(Enumerator const &other);
   Enumerator(Enumerator &&other);

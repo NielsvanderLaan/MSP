@@ -30,9 +30,10 @@ int main()
     GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
-     */
+    */
+
     cout << "SSDMIP\n";
-    sw.decom(env);
+    sw.decom(env, 1);
     sw.sddmip(false);
   } catch (GRBException &e)
   {
