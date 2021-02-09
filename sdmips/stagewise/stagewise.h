@@ -20,7 +20,7 @@ typedef vector<node> vnode;
 class Stagewise
 {
 public:
-  mt19937 d_engine{random_device{}()};
+  mt19937 d_engine{891}; // random_device{}()
 
   vector<stage_data> d_stages;
   vector<vnode> d_nodes;

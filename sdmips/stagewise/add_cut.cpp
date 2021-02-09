@@ -20,9 +20,9 @@ void Stagewise::add_cut(Cut &cut, int stage, vector<int> const &path)
   for (Enumerator &gen : get_enums(stage, node))
     gen.add_cut(cut);
 
-  if (stage == 0)
+  if (stage == 0)     // root problem --> no parents
     return;
-  for (size_t parent : parents(stage, path))      // if depth = 0, then enum objects are shared and this is stupid{}
+  for (size_t parent : parents(stage, path))      // if depth = 0, then enum objects are shared and this is stupid
     get_enums(stage - 1, parent)[path.back()].add_cut(cut);
 
 }

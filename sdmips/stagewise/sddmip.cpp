@@ -2,7 +2,7 @@
 
 void Stagewise::sddmip(bool affine)
 {
-  size_t max_iter = 25;
+  size_t max_iter = 100;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
     vector<vpath> paths = sample(5);
@@ -43,7 +43,6 @@ void Stagewise::backward(vector<vsol> const &sols, vector<vpath> const &paths, b
 {
   for (int stage = d_stages.size() - 2; stage != -1; --stage)
   {
-    cout << "stage: " << stage << '\n';
     vector<Cut> cuts;
     cuts.reserve(paths.size());
     for (size_t idx = 0; idx != paths.size(); ++idx)

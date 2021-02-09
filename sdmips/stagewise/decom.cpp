@@ -28,7 +28,7 @@ void Stagewise::decom(GRBEnv &env, int depth)
     bool leaf = (stage == nstages - 1);
     for (vpath &tail : sub_paths)
     {
-      Master master {d_stages[stage][tail.back()], leaf, env};     // mistake is here
+      Master master {d_stages[stage][tail.back()], leaf, env};
       if (leaf)
       {
         nodes.emplace_back(node{move(master), Enumerator{}, nullptr});
@@ -37,8 +37,10 @@ void Stagewise::decom(GRBEnv &env, int depth)
 
       for (size_t lvl = 0; lvl != tail.size(); ++lvl)
       {
-        fdata[start + lvl] = d_stages[start + lvl][tail[lvl]];
-        edata[start + lvl] = d_stages[start + lvl][tail[lvl]];
+        int st = start + lvl;
+        int out = tail[lvl];
+        fdata[st] = d_stages[st][out];
+        edata[st] = d_stages[st][out];
       }
 
       v_enum *e_ptr;
@@ -54,6 +56,7 @@ void Stagewise::decom(GRBEnv &env, int depth)
         }
       }
 
+
       nodes.emplace_back(node{move(master),
                               Enumerator {fdata, fpath, fpath.size(), leaf, env},
                               e_ptr});
@@ -61,6 +64,8 @@ void Stagewise::decom(GRBEnv &env, int depth)
     d_nodes.emplace_back(move(nodes));
 
     for (NodeData &data : fdata)
+      data.to_box();
+    for (NodeData &data : edata)
       data.to_box();
   }
 }
