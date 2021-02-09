@@ -15,7 +15,7 @@ vector<vpath> Stagewise::sample(size_t nsamples)
   return ret;
 }
 
-vector<vpath> Stagewise::enumerate_paths(int start, int depth, vector<vpath> paths)
+vector<vpath> Stagewise::enumerate_paths(int start, int end, vector<vpath> paths)
 {
   vector<vpath> ret;
   int outcomes = d_stages[start].size();
@@ -30,15 +30,15 @@ vector<vpath> Stagewise::enumerate_paths(int start, int depth, vector<vpath> pat
       ret.push_back(copy);
     }
   }
-  --depth;
-  if (depth > 0)
-    return enumerate_paths(start + 1, depth, ret);
+
+  if (start < end)
+    return enumerate_paths(start + 1, end, ret);
 
   return ret;
 }
 
 vector<vpath> Stagewise::enumerate_paths()
 {
-  return enumerate_paths(0, d_stages.size());
+  return enumerate_paths(0, d_stages.size() - 1);
 }
 

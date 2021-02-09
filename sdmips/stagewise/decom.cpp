@@ -2,6 +2,8 @@
 
 void Stagewise::decom(GRBEnv &env, int depth)
 {
+  assert(depth > 0);
+
   d_depth = depth;
   size_t nstages = d_stages.size();
   d_nodes.reserve(nstages);
@@ -19,9 +21,7 @@ void Stagewise::decom(GRBEnv &env, int depth)
     edata.resize(epath.size());
 
     int start = max(stage - depth + 1, 0);
-    if (depth == 0)
-      start = stage;
-    vector<vpath> sub_paths = enumerate_paths(start, depth);
+    vector<vpath> sub_paths = enumerate_paths(start, stage);
 
     vnode nodes;
     nodes.reserve(sub_paths.size());
@@ -43,18 +43,12 @@ void Stagewise::decom(GRBEnv &env, int depth)
         edata[st] = d_stages[st][out];
       }
 
-      v_enum *e_ptr;
-      if (depth == 0 && nodes.size() > 0)
-        e_ptr = &get_enums(stage, 0);
-      else
+      v_enum *e_ptr = new v_enum;
+      e_ptr->reserve(outcomes(stage + 1));
+      for (int out = 0; out != outcomes(stage + 1); ++out)
       {
-        e_ptr = new v_enum;
-        e_ptr->reserve(outcomes(stage + 1));
-        for (int out = 0; out != outcomes(stage + 1); ++out)
-        {
-          edata.back() = d_stages[stage + 1][out];
-          e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, leaf, env));
-        }
+        edata.back() = d_stages[stage + 1][out];
+        e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, leaf, env));
       }
 
       nodes.emplace_back(node{move(master),
@@ -68,5 +62,4 @@ void Stagewise::decom(GRBEnv &env, int depth)
     for (NodeData &data : edata)
       data.to_box();
   }
-
 }

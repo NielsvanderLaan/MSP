@@ -32,12 +32,13 @@ public:
 
   GRBModel lsde(GRBEnv &env);
   void decom(GRBEnv &env, int depth);
+  void decom(GRBEnv &env);            // stagewise outer approximations
 
   void sddmip(bool affine);
   vector<vsol> forward(vector<vpath> const &paths, bool affine, bool lp);
   void backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine);
   vector<vpath> sample(size_t nsamples = 30);
-  vector<vpath> enumerate_paths(int start, int depth, vector<vpath> paths = vector<vpath>(1));
+  vector<vpath> enumerate_paths(int start, int end, vector<vpath> paths = vector<vpath>(1));
   vector<vpath> enumerate_paths();
 
   void solve(int stage, int node, bool affine, bool lp, bool force);
@@ -46,7 +47,7 @@ public:
   void add_cut(Cut &cut, int stage, vector<int> const &path);
   void add_shared(Cut &cut, int stage);
 
-  Cut sddp_cut(int stage, Solution const &sol);             // has to be valid for Q_t (stage-specific)
+  Cut sddp_cut(int stage, Solution const &sol);         // has to be valid for Q_t (stage-specific)
   Cut scaled_cut(int stage, int node, Solution const &sol, bool affine, double tol = 1e-4);
   Cut fenchel_cut(int stage, int node, bool affine, double tol = 1e-4);                // has to be valid for X_n (node-specific)
 
