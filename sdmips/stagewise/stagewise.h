@@ -50,7 +50,7 @@ public:
   Cut scaled_cut(int stage, int node, Solution const &sol, bool affine, double tol = 1e-4);
   Cut fenchel_cut(int stage, int node, bool affine, double tol = 1e-4);                // has to be valid for X_n (node-specific)
 
-  void init_enums(int stage, int node, Solution const& sol);
+  void init_enums(int stage, int node, Solution const &sol);
 
   int master_idx(int stage, vector<int> const &path);
   vector<int> parents(int stage, vector<int> const &path);

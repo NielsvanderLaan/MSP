@@ -10,26 +10,20 @@ bool Stagewise::add_cp(Cut &cut, int stage, int node, double tol)
 
 void Stagewise::add_cut(Cut &cut, int stage, vector<int> const &path)
 {
-  assert(all_of(cut.d_tau.begin(), cut.d_tau.end(), [](double val){return abs(val) < 1e-6;}));
-
   if (cut.d_tau.back() > 0)
     cut.scale();
 
   int node = master_idx(stage, path);
 
   get_master(stage, node).add(cut);        // no sharing
-
-  // TODO: outcomment below.
-  /*
   get_fenchel(stage, node).add_cut(cut);   // idem
 
   for (Enumerator &gen : get_enums(stage, node))
     gen.add_cut(cut);
-  */
-
+  
   if (stage == 0)     // root problem --> no parents
     return;
   for (size_t parent : parents(stage, path))      // if depth = 0, then enum objects are shared and this is stupid
-    get_enums(stage - 1, parent)[path.back()].add_cut(cut);
+    get_enums(stage - 1, parent)[path[stage]].add_cut(cut);
 
 }

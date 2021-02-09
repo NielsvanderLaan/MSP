@@ -56,7 +56,6 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
         return fdecom(tol, affine, true);
       }
 
-
       cerr << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
       break;
     }
@@ -79,13 +78,7 @@ Cut Enumerator::feas_cut(Solution const &sol, bool affine, double tol)
 }
 
 Cut Enumerator::opt_cut(double rho, bool affine, double tol)       // bool affine
-{/*
-  if (d_data.d_stage == 2)
-  {
-    cout << "pling\n";
-    d_sp->write("sp.lp");
-  }
-*/
+{
   set_tau_bounds(affine, GRB_INFINITY);
   set_rho(rho);
   return fdecom(tol, affine);

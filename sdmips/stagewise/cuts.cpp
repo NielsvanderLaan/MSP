@@ -47,7 +47,7 @@ Cut Stagewise::fenchel_cut(int stage, int node, bool affine, double tol)
 
 
 
-void Stagewise::init_enums(int stage, int node, const Solution &sol)
+void Stagewise::init_enums(int stage, int node, Solution const &sol)
 {
   int future = stage + 1;
   for (int child = 0; child != outcomes(future); ++child)

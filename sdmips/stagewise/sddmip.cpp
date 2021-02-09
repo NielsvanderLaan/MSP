@@ -2,10 +2,10 @@
 
 void Stagewise::sddmip(bool affine)
 {
-  size_t max_iter = 100;
+  size_t max_iter = 25;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
-    vector<vpath> paths = enumerate_paths();      //sample(5);
+    vector<vpath> paths = sample(5);
     vector<vsol> sols = forward(paths, affine, false);
     cout << get_master(0,0).obj() << endl;
 
