@@ -18,6 +18,8 @@ void Stagewise::add_cut(Cut &cut, int stage, vector<int> const &path)
   int node = master_idx(stage, path);
 
   get_master(stage, node).add(cut);        // no sharing
+
+  // TODO: outcomment below.
   /*
   get_fenchel(stage, node).add_cut(cut);   // idem
 

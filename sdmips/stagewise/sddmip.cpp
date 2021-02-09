@@ -9,8 +9,6 @@ void Stagewise::sddmip(bool affine)
     vector<vsol> sols = forward(paths, affine, false);
     cout << get_master(0,0).obj() << endl;
 
-    get_master(0, 0).d_lp->write("master.lp");
-
     backward(sols, paths, affine);
   }
 }

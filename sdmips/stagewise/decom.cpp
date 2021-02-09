@@ -49,6 +49,7 @@ void Stagewise::decom(GRBEnv &env, int depth)
       else
       {
         e_ptr = new v_enum;
+        e_ptr->reserve(outcomes(stage + 1));
         for (int out = 0; out != outcomes(stage + 1); ++out)
         {
           edata.back() = d_stages[stage + 1][out];
@@ -67,4 +68,5 @@ void Stagewise::decom(GRBEnv &env, int depth)
     for (NodeData &data : edata)
       data.to_box();
   }
+
 }

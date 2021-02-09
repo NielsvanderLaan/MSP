@@ -80,6 +80,12 @@ Cut Enumerator::feas_cut(Solution const &sol, bool affine, double tol)
 
 Cut Enumerator::opt_cut(double rho, bool affine, double tol)       // bool affine
 {
+  if (d_data.d_stage == 2)
+  {
+    cout << "pling\n";
+    d_sp->write("sp.lp");
+  }
+
   set_tau_bounds(affine, GRB_INFINITY);
   set_rho(rho);
   return fdecom(tol, affine);
