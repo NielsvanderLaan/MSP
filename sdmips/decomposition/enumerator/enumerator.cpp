@@ -40,9 +40,9 @@ d_data(nodes[path.back()])
   {
     NodeData const &data = nodes[node];
     GRBVar *xnode = d_sp->addVars(data.d_lb.memptr(),
-                                 data.d_ub.memptr(),
-                                 data.d_costs.memptr(),
-                                 data.d_types.memptr(),
+                                  data.d_ub.memptr(),
+                                  data.d_costs.memptr(),
+                                  data.d_types.memptr(),
                                  nullptr,
                                   data.nvars());
     d_x.push_back(vvar(xnode, xnode + data.nvars()));

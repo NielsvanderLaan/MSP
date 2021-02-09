@@ -1,17 +1,18 @@
 #include "stagewise.h"
 
-int Stagewise::master_idx(int stage, vector<int> const &path)
+int Stagewise::master_idx(int stage, vpath const &path)
 {
   int ret = path[stage];
   int jump = 1;
   for (int lvl = 1; lvl < min(d_depth, stage + 1); ++lvl)
   {
-    jump *= outcomes(stage - lvl);
-    ret += path[lvl] * jump;
+    jump *= outcomes(stage - lvl + 1);
+    ret += path[stage - lvl] * jump;
   }
 
   return ret;
 }
+
 
 vector<int> Stagewise::parents(int stage, vector<int> const &path)
 {
@@ -53,17 +54,17 @@ vector<double> Stagewise::probs(stage_data const &stage) const
 
 Master &Stagewise::get_master(int stage, int node)
 {
-  return get<0>(d_nodes.at(stage).at(node));
+  return get<0>(d_nodes[stage][node]);
 }
 
 Enumerator &Stagewise::get_fenchel(int stage, int node)
 {
-  return get<1>(d_nodes.at(stage).at(node));
+  return get<1>(d_nodes[stage][node]);
 }
 
 v_enum &Stagewise::get_enums(int stage, int node)
 {
-  return *get<2>(d_nodes.at(stage).at(node));
+  return *get<2>(d_nodes[stage][node]);
 }
 
 Solution Stagewise::solution(int stage, int node)

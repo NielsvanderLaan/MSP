@@ -53,7 +53,7 @@ public:
 
   void init_enums(int stage, int node, Solution const &sol);
 
-  int master_idx(int stage, vector<int> const &path);
+  int master_idx(int stage, vpath const &path);
   vector<int> parents(int stage, vector<int> const &path);
   Master& get_master(int stage, int node);
   Enumerator &get_fenchel(int stage, int node);

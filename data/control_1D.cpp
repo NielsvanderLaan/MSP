@@ -6,12 +6,12 @@ Tree control_1D()
   mt19937 engine(seed);
   uniform_real_distribution<double> uni(0.5, 1.0);
 
-  vector<int> scenarios {1, 10, 10, 10};   // per stage
+  vector<int> scenarios {1, 8, 3, 7};   // per stage
   int stages = scenarios.size();
   vector<vdouble> nodes(stages);       // stores the nodes for each stage
 
   sp_mat Amat(mat{{1,0}, {-1, 0}, {-1, 1}, {1, 1}});
-  double M = GRB_INFINITY;
+  double M = 10.0;
   vec lb {0, 0, 0, 0};
   vec ub {M, M, 1, 1};
   Col<char> types {GRB_CONTINUOUS, GRB_CONTINUOUS, GRB_INTEGER, GRB_INTEGER};
@@ -52,21 +52,16 @@ Tree control_1D()
                   types,
                   senses};
 
-    for (int parent : nodes[stage - 1])
+    for (int s = 0; s != scenarios[stage]; ++s)
     {
-      //double step = 10.0 / (scenarios[stage] - 1);
-      for (int s = 0; s != scenarios[stage]; ++s)
-      {
-        //sub.d_rhs[0] = -5.0 + s * step;
+      if (s % 2 == 0)
+        sub.d_rhs[0] = uni(engine);
+      else
+        sub.d_rhs[0] = -uni(engine);
 
-        if (s % 2 == 0)
-          sub.d_rhs[0] = uni(engine);
-        else
-          sub.d_rhs[0] = -uni(engine);
-
-
+      for (int parent : nodes[stage - 1])
         nodes[stage].push_back(tree.add_node(sub, parent));
-      }
+
     }
     beta = beta * beta;
   }
