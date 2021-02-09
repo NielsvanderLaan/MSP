@@ -56,7 +56,6 @@ void Stagewise::decom(GRBEnv &env, int depth)
         }
       }
 
-
       nodes.emplace_back(node{move(master),
                               Enumerator {fdata, fpath, fpath.size(), leaf, env},
                               e_ptr});

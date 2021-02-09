@@ -14,6 +14,7 @@ Cut Stagewise::scaled_cut(int stage, int node, const Solution &sol, bool affine,
   {
     ret = Cut(path_nvars);
     crho = -rho;
+
     for (Enumerator &gen : get_enums(stage, node))
     {
       ret += gen.d_data.d_prob * gen.opt_cut(rho, affine, tol);

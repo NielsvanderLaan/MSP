@@ -34,7 +34,7 @@ public:
   void decom(GRBEnv &env, int depth);
 
   void sddmip(bool affine);
-  vector<vsol> forward(vector<vpath> &paths, bool affine, bool lp);
+  vector<vsol> forward(vector<vpath> const &paths, bool affine, bool lp);
   void backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine);
   vector<vpath> sample(size_t nsamples = 30);
   vector<vpath> enumerate_paths(int start, int depth, vector<vpath> paths = vector<vpath>(1));

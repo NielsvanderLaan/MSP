@@ -5,20 +5,22 @@ void Stagewise::sddmip(bool affine)
   size_t max_iter = 100;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
-    vector<vpath> paths = sample(5);
+    vector<vpath> paths = enumerate_paths();      //sample(5);
     vector<vsol> sols = forward(paths, affine, false);
     cout << get_master(0,0).obj() << endl;
+
+    get_master(0, 0).d_lp->write("master.lp");
 
     backward(sols, paths, affine);
   }
 }
 
-vector<vsol> Stagewise::forward(vector<vpath> &paths, bool affine, bool lp)
+vector<vsol> Stagewise::forward(vector<vpath> const &paths, bool affine, bool lp)
 {
   vector<vsol> ret;
   ret.reserve(paths.size());
 
-  for (auto &path : paths)
+  for (auto const &path : paths)
   {
     vsol sols;
     sols.reserve(d_stages.size() - 1);
@@ -41,7 +43,7 @@ vector<vsol> Stagewise::forward(vector<vpath> &paths, bool affine, bool lp)
 
 void Stagewise::backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine)
 {
-  for (int stage = d_stages.size() - 2; stage != -1; --stage)
+  for (int stage = d_stages.size() - 2; stage != 0; --stage)
   {
     vector<Cut> cuts;
     cuts.reserve(paths.size());
@@ -54,6 +56,9 @@ void Stagewise::backward(vector<vsol> const &sols, vector<vpath> const &paths, b
     for (size_t idx = 0; idx != paths.size(); ++idx)
       add_cut(cuts[idx], stage, paths[idx]);
   }
+        // root node: solutions are identical, just add the cut once
+  Cut cut = scaled_cut(0, 0, sols[0][0], affine);
+  add_cut(cut, 0, paths[0]);
 }
 
 void Stagewise::solve(int stage, int node, bool affine, bool lp, bool force)
@@ -70,7 +75,7 @@ void Stagewise::solve(int stage, int node, bool affine, bool lp, bool force)
     if (not add_cp(cutting_plane, stage, node))    // mip could not be solved using cutting planes
     {
       if (force)
-        mp.solve_mip();                        // use Gurobi
+        mp.solve_mip();                              // use Gurobi
       return;
     }
 
