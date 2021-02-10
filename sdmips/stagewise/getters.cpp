@@ -46,7 +46,7 @@ vector<int> Stagewise::children(int stage, int node)
   }
 
   int skip = 1;
-  for (int depth = 0; depth != d_depth - 1; ++depth)
+  for (int depth = 0; depth < d_depth - 1; ++depth)
     skip *= outcomes(stage - depth);
 
   iota(ret.begin(), ret.end(), (node % skip) * n_outcomes);

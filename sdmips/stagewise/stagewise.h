@@ -35,8 +35,10 @@ public:
   void decom(GRBEnv &env);            // stagewise outer approximations
 
   void sddmip(bool affine);
+  void sddp();
   vector<vsol> forward(vector<vpath> const &paths, bool affine, bool lp);
   void backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine);
+  void shared_backward(vector<vsol> const &sols, bool affine);
   vector<vpath> sample(size_t nsamples = 30);
   vector<vpath> enumerate_paths(int start, int end, vector<vpath> paths = vector<vpath>(1));
   vector<vpath> enumerate_paths();
@@ -45,11 +47,12 @@ public:
   Solution solution(int stage, int node);
   bool add_cp(Cut &cut, int stage, int node, double tol = 1e-4);
   void add_cut(Cut &cut, int stage, vector<int> const &path);
-  void add_shared(Cut &cut, int stage);
+  void add_shared_cut(Cut &cut, int stage);
 
-  Cut sddp_cut(int stage, Solution const &sol);         // has to be valid for Q_t (stage-specific)
+  Cut sddp_cut(int stage, Solution const &sol);         // sddp cuts are shared cuts by default
   Cut scaled_cut(int stage, int node, Solution const &sol, bool affine, double tol = 1e-4);
-  Cut fenchel_cut(int stage, int node, bool affine, double tol = 1e-4);                // has to be valid for X_n (node-specific)
+  Cut shared_scaled_cut(int stage, Solution const &sol, bool affine, double tol = 1e-4);
+  Cut fenchel_cut(int stage, int node, bool affine, double tol = 1e-4);     // has to be valid for X_n (node-specific)
 
   void init_enums(int stage, int node, Solution const &sol);
 

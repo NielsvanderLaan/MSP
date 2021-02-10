@@ -28,6 +28,12 @@ Cut Stagewise::scaled_cut(int stage, int node, const Solution &sol, bool affine,
   return ret;
 }
 
+Cut Stagewise::shared_scaled_cut(int stage, const Solution &sol, bool affine, double tol)
+{
+  assert(d_depth == 0);
+  return scaled_cut(stage, 0, sol, affine, tol);
+}
+
 Cut Stagewise::sddp_cut(int stage, Solution const &sol)
 {
   Cut ret(nvars(stage));

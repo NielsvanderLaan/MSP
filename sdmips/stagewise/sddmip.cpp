@@ -43,6 +43,9 @@ vector<vsol> Stagewise::forward(vector<vpath> const &paths, bool affine, bool lp
 
 void Stagewise::backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine)
 {
+  if (d_depth == 0)
+    return shared_backward(sols, affine);
+
   for (int stage = d_stages.size() - 2; stage != 0; --stage)
   {
     vector<Cut> cuts;
@@ -60,6 +63,24 @@ void Stagewise::backward(vector<vsol> const &sols, vector<vpath> const &paths, b
         // root node: solutions are identical, just add the cut once
   Cut cut = scaled_cut(0, 0, sols[0][0], affine);
   add_cut(cut, 0, paths[0]);
+}
+
+void Stagewise::shared_backward(vector<vsol> const &sols, bool affine)
+{
+  for (int stage = d_stages.size() - 2; stage != 0; --stage)
+  {
+    vector<Cut> cuts;
+    cuts.reserve(sols.size());
+    for (size_t idx = 0; idx != sols.size(); ++idx)
+      cuts.emplace_back(shared_scaled_cut(stage,
+                                          sols[idx][stage],
+                                          affine));
+    for (Cut &cut : cuts)
+      add_shared_cut(cut, stage);
+  }
+
+  Cut cut = shared_scaled_cut(0, sols[0][0], affine);
+  add_shared_cut(cut, 0);
 }
 
 void Stagewise::solve(int stage, int node, bool affine, bool lp, bool force)
