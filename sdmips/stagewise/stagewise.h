@@ -55,6 +55,7 @@ public:
 
   int master_idx(int stage, vpath const &path);
   vector<int> parents(int stage, vector<int> const &path);
+  vector<int> children(int stage, int node);
   Master& get_master(int stage, int node);
   Enumerator &get_fenchel(int stage, int node);
   v_enum &get_enums(int stage, int node);

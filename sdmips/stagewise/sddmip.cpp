@@ -2,10 +2,11 @@
 
 void Stagewise::sddmip(bool affine)
 {
-  size_t max_iter = 1000;
+  size_t max_iter = 25;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
-    vector<vpath> paths =  enumerate_paths(); // sample(5);
+    vector<vpath> paths = sample(30);// enumerate_paths();
+
     vector<vsol> sols = forward(paths, affine, false);
     cout << get_master(0,0).obj() << endl;
 
@@ -25,17 +26,18 @@ vector<vsol> Stagewise::forward(vector<vpath> const &paths, bool affine, bool lp
     for (int stage = 0; stage != d_stages.size() - 1; ++stage)
     {
       int master = master_idx(stage, path);
-      int child = master_idx(stage + 1, path);
-
       solve(stage, master, affine, lp, true);
       Solution forward = solution(stage, master);
       sols.push_back(forward);
 
+      if (stage + 1 == d_stages.size() - 1)     // penultimate stage: no need to update children
+        continue;
+
+      int child = master_idx(stage + 1, path);
       get_master(stage + 1, child).update(forward);
     }
     ret.emplace_back(move(sols));
   }
-
   return ret;
 }
 
@@ -45,11 +47,12 @@ void Stagewise::backward(vector<vsol> const &sols, vector<vpath> const &paths, b
   {
     vector<Cut> cuts;
     cuts.reserve(paths.size());
+
     for (size_t idx = 0; idx != paths.size(); ++idx)
       cuts.emplace_back(scaled_cut(stage,
                                   master_idx(stage, paths[idx]),
-                                  sols[idx][stage],
-                                  affine));
+                                   sols[idx][stage],
+                                   affine));
         // do not combine the for loops: cuts should be added in bulk
     for (size_t idx = 0; idx != paths.size(); ++idx)
       add_cut(cuts[idx], stage, paths[idx]);
@@ -62,7 +65,6 @@ void Stagewise::backward(vector<vsol> const &sols, vector<vpath> const &paths, b
 void Stagewise::solve(int stage, int node, bool affine, bool lp, bool force)
 {
   Master &mp = get_master(stage, node);
-
   mp.solve_lp();
 
   if (lp)
@@ -74,7 +76,7 @@ void Stagewise::solve(int stage, int node, bool affine, bool lp, bool force)
     if (not add_cp(cutting_plane, stage, node))    // mip could not be solved using cutting planes
     {
       if (force)
-        mp.solve_mip();                              // use Gurobi
+        mp.solve_mip();                               // use Gurobi
       return;
     }
 

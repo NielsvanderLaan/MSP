@@ -6,7 +6,7 @@ Tree control_1D()
   mt19937 engine(seed);
   uniform_real_distribution<double> uni(0.5, 1.0);
 
-  vector<int> scenarios {1, 8, 3, 7};   // per stage
+  vector<int> scenarios {1, 4, 4, 4, 4};   // per stage
   int stages = scenarios.size();
   vector<vdouble> nodes(stages);       // stores the nodes for each stage
 

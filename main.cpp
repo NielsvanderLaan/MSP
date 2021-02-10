@@ -13,6 +13,7 @@ int main()
     env.set(GRB_IntParam_OutputFlag, 0);
     env.set(GRB_IntParam_Threads, 1);
 
+
     //Tree tree = ssv();
 
     /*
@@ -26,14 +27,13 @@ int main()
     return 0;
     */
 
-
-
     Stagewise sw = ctrl_1D();
+
     /*
     GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
-     */
+    */
 
     cout << "SSDMIP\n";
     sw.decom(env, 2);

@@ -2,6 +2,7 @@
 
 Cut Enumerator::fdecom(double tol, bool affine, bool reset)
 {
+  //reset = true;
   if (reset) clear();
   set_mp(false);              // relax mp
 
@@ -32,8 +33,6 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
 
       if (first_strike)
         set_mp(false);
-
-
       first_strike = false;
 
       continue;
@@ -43,7 +42,7 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
       cout << "mp status: " << mp_status() << '\n';
       if (mp_status() == 2)
         cout << "violation: " << mp_violation() << '\n';
-        */
+       */
       if (not first_strike)
       {
         first_strike = true;
@@ -55,7 +54,6 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
         //cout << "second strike: resetting\n";
         return fdecom(tol, affine, true);
       }
-
       cerr << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
       break;
     }

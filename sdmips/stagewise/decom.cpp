@@ -26,7 +26,7 @@ void Stagewise::decom(GRBEnv &env, int depth)
     vnode nodes;
     nodes.reserve(sub_paths.size());
     bool leaf = (stage == nstages - 1);
-
+    bool preleaf = (stage == nstages - 2);
     for (vpath &tail : sub_paths)
     {
       Master master {d_stages[stage][tail.back()], leaf, env};
@@ -49,7 +49,7 @@ void Stagewise::decom(GRBEnv &env, int depth)
       for (int out = 0; out != outcomes(stage + 1); ++out)
       {
         edata.back() = d_stages[stage + 1][out];
-        e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, leaf, env));
+        e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, preleaf, env));
       }
 
       nodes.emplace_back(node{move(master),

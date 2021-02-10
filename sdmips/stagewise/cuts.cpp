@@ -1,5 +1,7 @@
 #include "stagewise.h"
 
+#include <fstream>
+
 Cut Stagewise::scaled_cut(int stage, int node, const Solution &sol, bool affine, double tol)   // TODO: sharing
 {
   Cut ret;
@@ -30,11 +32,12 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
 {
   Cut ret(nvars(stage));
 
-  for (int child = 0; child != outcomes(stage + 1); ++child)
+  int future = stage + 1;
+  for (int child = 0; child != outcomes(future); ++child)
   {
-    Master &sub = get_master(stage + 1, child);
+    Master &sub = get_master(future, child);
     sub.update(sol);
-    ret += d_stages[stage + 1][child].d_prob * sub.opt_cut();
+    ret += d_stages[future][child].d_prob * sub.opt_cut();
   }
 
   return ret;
@@ -45,20 +48,19 @@ Cut Stagewise::fenchel_cut(int stage, int node, bool affine, double tol)
   return get_fenchel(stage, node).feas_cut(solution(stage, node), affine, tol);
 }
 
-
-
 void Stagewise::init_enums(int stage, int node, Solution const &sol)
 {
-  int future = stage + 1;
-  for (int child = 0; child != outcomes(future); ++child)
+  v_enum &enumerators = get_enums(stage, node);
+
+  vector<int> childs = children(stage, node);
+  for (int idx = 0; idx != childs.size(); ++idx)
   {
-    Master &sub = get_master(future, child);
+    Master &sub = get_master(stage + 1, childs[idx]);
 
     sub.update(sol);
     sub.solve_mip();
 
-    Enumerator &gen = get_enums(stage, node)[child];
-    gen.set_mp(sol);
-    gen.add_point(sub.forward(), false, true);
+    enumerators[idx].set_mp(sol);
+    enumerators[idx].add_point(sub.forward(), false, true);
   }
 }

@@ -35,6 +35,24 @@ vector<int> Stagewise::parents(int stage, vector<int> const &path)
   return ret;
 }
 
+vector<int> Stagewise::children(int stage, int node)
+{
+  int n_outcomes = outcomes(stage + 1);
+  vector<int> ret(n_outcomes);
+  if (stage < d_depth)
+  {
+    iota(ret.begin(), ret.end(), node * n_outcomes);
+    return ret;
+  }
+
+  int skip = 1;
+  for (int depth = 0; depth != d_depth - 1; ++depth)
+    skip *= outcomes(stage - depth);
+
+  iota(ret.begin(), ret.end(), (node % skip) * n_outcomes);
+  return ret;
+}
+
 vector<int> Stagewise::nvars(int stage) const
 {
   vector<int> ret(stage + 1);
