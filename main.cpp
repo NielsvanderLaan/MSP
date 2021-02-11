@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
 
     cout << "number of stages: " << nstages <<
             "\noutcomes per stage: " << n_outcomes << '\n' <<
-            (affine ? "Lagrangian" : "Scaled") << " cuts." <<
-            "\ndepth: " << depth << ".\n"<< endl;
+            (affine ? "Lagrangian" : "Scaled") << " cuts" <<
+            "\ndepth: " << depth << '\n' << endl;
 
     Stagewise sw = ctrl_1D(nstages, n_outcomes);
 
