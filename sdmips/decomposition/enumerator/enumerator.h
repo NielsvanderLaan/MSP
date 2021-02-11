@@ -26,7 +26,6 @@ public:
   vvar d_theta;          // theta_1, ..., theta_n
 
   vector<Solution> d_points;    // depth = n
-  vector<bool> d_directions;
 
   Enumerator() = default;
   Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env);
@@ -46,13 +45,12 @@ public:
   Cut solve_mp(bool affine, double M);
   void clear();
   void set_mp(Solution const &sol);
-  void add_point(Solution point, bool direction, bool prime = false);
+  void add_point(Solution point, bool prime = false);
   Cut candidate();
     // sp management
   void solve_sp();
   void set_sub(Cut &cut);
   Solution point();
-  Solution direction();
     // getters
   int sp_status() const;
   double crho() const;
@@ -69,6 +67,20 @@ public:
 };
 
 class mp_exception : public exception
-{};
+{
+  const char * what() const noexcept override
+  {
+    return "cgmp is numerically unstable\n";
+  }
+};
+
+class sp_exception : public exception
+{
+  const char * what() const noexcept override
+  {
+    return "cgsp is numerically unstable\n";
+  }
+};
+
 
 #endif //MSP_ENUMERATOR_H

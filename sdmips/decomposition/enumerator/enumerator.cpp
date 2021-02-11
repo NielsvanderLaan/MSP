@@ -88,8 +88,7 @@ d_data(nodes[path.back()])
 Enumerator::Enumerator(const Enumerator &other)
 :
 d_data(other.d_data),
-d_points(other.d_points),
-d_directions(other.d_directions)
+d_points(other.d_points)
 {
   d_mp = new GRBModel(*other.d_mp);
   d_sp = new GRBModel(*other.d_sp);
@@ -142,8 +141,7 @@ d_objcon(other.d_objcon),
 d_sp(other.d_sp),
 d_x(other.d_x),
 d_theta(other.d_theta),
-d_points(other.d_points),
-d_directions(other.d_directions)
+d_points(other.d_points)
 {
   other.d_sp = nullptr;
   other.d_mp = nullptr;

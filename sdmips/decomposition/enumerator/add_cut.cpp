@@ -33,13 +33,6 @@ void Enumerator::add_cut_to_mp(Cut const &cut)
   for (size_t con = d_points.size() - 1; con != -1; --con)
   {
     GRBConstr &mp_cut = mp_cons[con + 1];   // skip obj_con
-    if (d_directions[con])
-    {
-      d_mp->remove(mp_cut);
-      d_points.erase(d_points.begin() + con);
-      d_directions.erase(d_directions.begin() + con);
-      continue;
-    }
 
     Solution &point = d_points[con];
     double diff = max(0.0, scaled_rhs(cut, point) - point.d_theta[idx]);

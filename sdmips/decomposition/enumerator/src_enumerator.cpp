@@ -11,6 +11,9 @@ void Enumerator::optimize_mp()
 void Enumerator::solve_sp()
 {
   d_sp->optimize();
+
+  if (sp_status() != 2)
+    throw sp_exception{};
 }
 
 int Enumerator::sp_status() const
@@ -35,6 +38,9 @@ double Enumerator::sub_val() const
 
 double Enumerator::sub_bound() const
 {
+  if (sp_status() != 2)
+    return -GRB_INFINITY;
+
   return d_sp->get(GRB_DoubleAttr_ObjBound);
 }
 
@@ -59,7 +65,6 @@ void Enumerator::set_rho(double rho)
 
 void Enumerator::set_mp(Solution const &sol)
 {
-  //int depth = sol.depth();
   for (size_t stage = 0; stage != d_beta.size(); ++stage)
   {
     for (size_t var = 0; var != d_beta[stage].size(); ++var)
@@ -118,12 +123,10 @@ Cut Enumerator::candidate()
               tau_vals};
 }
 
-void Enumerator::add_point(Solution point, bool direction, bool prime)
+void Enumerator::add_point(Solution point, bool prime)
 {
   assert(point.depth() == d_data.d_stage);
   d_points.push_back(point);
-  d_directions.push_back(direction);
-
   GRBLinExpr beta_x;
   GRBLinExpr tau_theta;
 
@@ -137,17 +140,10 @@ void Enumerator::add_point(Solution point, bool direction, bool prime)
                      d_tau.size());
 
   double rhs = d_tau.size() == point.depth() ? 0.0 : dot(d_data.d_costs, point.d_x.back()) + point.d_theta.back();
-
-  if (direction)
-    d_mp->addConstr(-beta_x - tau_theta <= rhs);
-  else
-    d_mp->addConstr(d_alpha - beta_x - tau_theta <= rhs);
+  d_mp->addConstr(d_alpha - beta_x - tau_theta <= rhs);
 
   if (prime)
-  {
-    assert(not direction);
     d_obj.set(GRB_DoubleAttr_UB, rhs);
-  }
 
   d_mp->update();
 }
@@ -169,38 +165,6 @@ Solution Enumerator::point()
   delete[] vals;
 
   return Solution {xvals, thetavals};
-}
-
-Solution Enumerator::direction()
-{
-  GRBModel lp = *d_sp;
-  GRBVar *vars = lp.getVars();
-    // construct lp relaxation
-  int nvars = lp.get(GRB_IntAttr_NumVars);
-  vector<char> types(nvars, GRB_CONTINUOUS);
-  lp.set(GRB_CharAttr_VType, vars, types.data(), nvars);
-    // set params
-  lp.set(GRB_IntParam_DualReductions, 0);
-  lp.set(GRB_IntParam_InfUnbdInfo, 1);
-    // obtain unbounded ray
-  lp.optimize();
-
-  assert(lp.get(GRB_IntAttr_Status) == 5);
-  double *ray = lp.get(GRB_DoubleAttr_UnbdRay, vars, nvars);
-
-  double *copy = ray;
-  vvec x;
-  for (auto it = d_x.begin(); it != d_x.end(); ++it)
-  {
-    x.push_back(arma::vec{copy, it->size()});
-    copy += it->size();
-  }
-  vdouble theta{copy, copy + d_theta.size()};
-
-  delete[] ray;
-  delete[] vars;
-
-  return Solution {x, theta};
 }
 
 void Enumerator::set_sub(Cut &cut)
@@ -259,7 +223,6 @@ void Enumerator::clear()
   delete[] cons;
 
   d_points.clear();
-  d_directions.clear();
 
   d_mp->update();
 }

@@ -67,6 +67,6 @@ void Stagewise::init_enums(int stage, int node, Solution const &sol)
     sub.solve_mip();
 
     enumerators[idx].set_mp(sol);
-    enumerators[idx].add_point(sub.forward(), false, true);
+    enumerators[idx].add_point(sub.forward(), true);
   }
 }
