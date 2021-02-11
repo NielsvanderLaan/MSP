@@ -1,12 +1,15 @@
 #include "instances.h"
 
-Stagewise ctrl_1D()
+Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
 {
   int seed = 1234; //random_device{}()
   mt19937 engine(seed);
   uniform_real_distribution<double> uni(0.5, 1.0);
 
-  vector<int> scenarios {1, 6, 6, 6, 6};
+  vector<int> scenarios {1};
+  for (size_t stage = 0; stage != nstages - 1; ++stage)
+    scenarios.push_back(n_outcomes);
+
   int stages = scenarios.size();
 
   sp_mat Amat(mat{{1,0}, {-1, 0}, {-1, 1}, {1, 1}});

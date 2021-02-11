@@ -5,7 +5,7 @@
 using namespace std;
 using namespace arma;
 
-int main()
+int main(int argc, char *argv[])
 {
   try
   {
@@ -13,21 +13,17 @@ int main()
     env.set(GRB_IntParam_OutputFlag, 0);
     env.set(GRB_IntParam_Threads, 1);
 
+    int nstages = stoi(argv[1]);
+    int n_outcomes = stoi(argv[2]);
+    int depth = stoi(argv[3]);
+    bool affine = stoi(argv[4]);
 
-    //Tree tree = ssv();
+    cout << "number of stages: " << nstages <<
+            "\noutcomes per stage: " << n_outcomes << '\n' <<
+            (affine ? "Lagrangian" : "Scaled") << " cuts." <<
+            "\ndepth: " << depth << ".\n"<< endl;
 
-    /*
-    Tree tree = control_1D();
-    GRBModel model = tree.lsde(env);
-    model.set(GRB_IntParam_OutputFlag, 1);
-    model.optimize();
-    cout << "STOCHASTIC NESTED DECOMPOSITION\n";
-    tree.decom(env);
-    tree.SND(true);
-    return 0;
-    */
-
-    Stagewise sw = ctrl_1D();
+    Stagewise sw = ctrl_1D(nstages, n_outcomes);
 
     /*
     GRBModel sw_model = sw.lsde(env);
@@ -36,8 +32,8 @@ int main()
     */
 
     cout << "SSDMIP\n";
-    sw.decom(env, 1);
-    sw.sddmip(false);
+    sw.decom(env, depth);
+    sw.sddmip(affine);
 
   } catch (GRBException &e)
   {
