@@ -2,7 +2,7 @@
 
 void Stagewise::sddmip(bool affine)
 {
-  size_t max_iter = 25;
+  size_t max_iter = 100;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
     vector<vpath> paths = sample(30);// enumerate_paths();
