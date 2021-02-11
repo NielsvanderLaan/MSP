@@ -3,6 +3,7 @@
 void Enumerator::optimize_mp()
 {
   d_mp->optimize();
+
   if (mp_status() != 2)
     throw mp_exception{};
 }
@@ -44,6 +45,9 @@ double Enumerator::alpha() const
 
 double Enumerator::crho() const
 {
+  if (mp_status() != 2)
+    return GRB_INFINITY;
+
   return -d_mp->get(GRB_DoubleAttr_ObjVal) + alpha() - sub_bound();
 }
 
@@ -76,11 +80,18 @@ Cut Enumerator::solve_mp(bool affine, double M)
   if (ret.abs_max() < M)
     return ret;
 
-  double old_M = d_beta[0][0].get(GRB_DoubleAttr_UB);
-  set_bounds(M, affine);
-  optimize_mp();
-  set_bounds(old_M, affine);    // restore
+  double old_M = d_alpha.get(GRB_DoubleAttr_UB);
+  set_bounds(affine, M);
+  try
+  {
+    optimize_mp();
+  } catch (mp_exception)
+  {
+    set_bounds(affine, old_M);
+    throw;
+  }
 
+  set_bounds(affine, old_M);
   return candidate();
 }
 

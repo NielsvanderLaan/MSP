@@ -36,11 +36,12 @@ int main()
     */
 
     cout << "SSDMIP\n";
-    sw.decom(env, 0);
-    sw.sddmip(true);
+    sw.decom(env, 1);
+    sw.sddmip(false);
 
   } catch (GRBException &e)
   {
     cout << e.getErrorCode() << ' ' << e.getMessage() << '\n';
+    exit(e.getErrorCode());
   }
 }

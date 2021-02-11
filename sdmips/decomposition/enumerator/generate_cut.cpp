@@ -15,8 +15,6 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
     try
     {
       cut = solve_mp(affine, 1e8);
-      if (mp_violation() >= max(diff - 1e-6, tol))
-        throw mp_exception{};
 
       set_sub(cut);
       solve_sp();
@@ -25,6 +23,12 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
         add_point(direction(), true);
         continue;
       }
+
+      if (mp_violation() >= max(diff - 1e-6, tol))
+        throw mp_exception{};
+
+      if (first_strike)
+        cout << "removing strike\n";
 
       diff = cut.d_alpha - sub_val();
       if (diff < tol)
@@ -38,11 +42,10 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
       continue;
     } catch (mp_exception)
     {
-      /*
       cout << "mp status: " << mp_status() << '\n';
       if (mp_status() == 2)
         cout << "violation: " << mp_violation() << '\n';
-       */
+
       if (not first_strike)
       {
         first_strike = true;
@@ -51,10 +54,10 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
       }
       if (not reset)
       {
-        //cout << "second strike: resetting\n";
+        cout << "second strike: resetting\n";
         return fdecom(tol, affine, true);
       }
-      cerr << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
+      cout << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
       break;
     }
   }

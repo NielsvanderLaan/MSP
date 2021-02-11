@@ -39,6 +39,7 @@ public:
   vector<vsol> forward(vector<vpath> const &paths, bool affine, bool lp);
   void backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine);
   void shared_backward(vector<vsol> const &sols, bool affine);
+
   vector<vpath> sample(size_t nsamples = 30);
   vector<vpath> enumerate_paths(int start, int end, vector<vpath> paths = vector<vpath>(1));
   vector<vpath> enumerate_paths();
