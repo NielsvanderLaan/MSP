@@ -41,18 +41,21 @@ void Stagewise::decom(GRBEnv &env, int depth)
           edata[start + lvl] = d_stages[start + lvl][tail[lvl]];
       }
 
-      v_enum *e_ptr = nullptr;
       if (not stage_specific or nodes.empty())
       {
-        e_ptr = new v_enum;
+        v_enum *e_ptr = new v_enum;
         e_ptr->reserve(outcomes(stage + 1));
         for (int out = 0; out != outcomes(stage + 1); ++out)
         {
           edata.back() = d_stages[stage + 1][out];
           e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, preleaf, env));
         }
+        nodes.emplace_back(node{move(master), e_ptr});
+      } else
+      {
+        nodes.emplace_back(node{move(master), nodes.front().second});
       }
-      nodes.emplace_back(node{move(master), e_ptr});
+
     }
     d_nodes.emplace_back(move(nodes));
 

@@ -5,6 +5,7 @@
 #include "../decomposition/master/master.h"
 #include "../decomposition/enumerator/enumerator.h"
 #include <random>
+#include <memory>
 
 typedef vector<NodeData> stage_data;
 typedef vector<Master> vmaster;
@@ -12,7 +13,7 @@ typedef vector<Enumerator> v_enum;
 typedef vector<int> vpath;
 typedef vector<Solution> vsol;
 
-typedef pair<Master, v_enum*> node;
+typedef pair<Master, shared_ptr<v_enum>> node;
 typedef vector<node> vnode;
 
 
@@ -26,8 +27,6 @@ public:
   int d_depth;
 
   void add_node(NodeData const &data);
-
-  ~Stagewise();
 
   GRBModel lsde(GRBEnv &env);
   void decom(GRBEnv &env, int depth);

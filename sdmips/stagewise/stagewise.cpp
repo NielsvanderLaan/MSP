@@ -32,19 +32,3 @@ GRBModel Stagewise::lsde(GRBEnv &env)
 
   return model;
 }
-
-Stagewise::~Stagewise()
-{
-  for (auto &stage : d_nodes)
-  {
-    for (auto &sub : stage)
-    {
-      if (sub.second)
-        delete sub.second;
-
-      sub.second = nullptr;
-    }
-  }
-
-}
-
