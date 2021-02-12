@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-Cut Stagewise::scaled_cut(int stage, int node, const Solution &sol, bool affine, double tol)   // TODO: sharing
+Cut Stagewise::scaled_cut(int stage, int node, const Solution &sol, bool affine, double tol)
 {
   Cut ret;
   vector<int> path_nvars = nvars(stage);
