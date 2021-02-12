@@ -10,7 +10,7 @@ Cut Master::opt_cut()
 
   vvec beta(nlevels);
   vdouble tau(nlevels, 0.0);
-  double alpha = obj();
+  double alpha = lp_obj();
 
   for (int level = 0; level != nlevels; ++level)
     beta[level] = arma::vec(d_state.d_x[level].n_elem, arma::fill::zeros);

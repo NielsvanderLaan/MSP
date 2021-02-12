@@ -79,9 +79,15 @@ arma::vec Master::multipliers()
   return ret;
 }
 
-double Master::obj()
+double Master::lp_obj()
 {
   return d_lp->get(GRB_DoubleAttr_ObjBound);
+}
+
+
+double Master::mip_obj()
+{
+  return d_mip->get(GRB_DoubleAttr_ObjBound);
 }
 
 void Master::set_rho(double rho)

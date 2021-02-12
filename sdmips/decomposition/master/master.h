@@ -56,7 +56,8 @@ public:
   double mip_theta();
 
   arma::vec multipliers();
-  double obj();
+  double mip_obj();
+  double lp_obj();
 };
 
 #endif //MSP_MASTER_H

@@ -72,17 +72,12 @@ vector<double> Stagewise::probs(stage_data const &stage) const
 
 Master &Stagewise::get_master(int stage, int node)
 {
-  return get<0>(d_nodes[stage][node]);
-}
-
-Enumerator &Stagewise::get_fenchel(int stage, int node)
-{
-  return get<1>(d_nodes[stage][node]);
+  return d_nodes[stage][node].first;
 }
 
 v_enum &Stagewise::get_enums(int stage, int node)
 {
-  return *get<2>(d_nodes[stage][node]);
+  return *d_nodes[stage][node].second;
 }
 
 Solution Stagewise::solution(int stage, int node)

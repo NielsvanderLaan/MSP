@@ -23,7 +23,7 @@ Cut Tree::cpt_scaled_cut(int node, bool affine, double tol)
       master.set_rho(rho);
       solve_master(child, affine, false, false);      // SND MIP using Fenchel cuts
       ret += qnm * master.opt_cut();                           // LP duality --> optimality cut
-      crho -= qnm * master.obj();
+      crho -= qnm * master.lp_obj();
     }
 
     rho += crho / (1 + ret.d_tau.back());

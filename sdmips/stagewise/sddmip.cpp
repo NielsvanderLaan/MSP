@@ -2,14 +2,12 @@
 
 void Stagewise::sddmip(bool affine)
 {
-  size_t max_iter = 100;
+  size_t max_iter = 2;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
-    vector<vpath> paths = sample(30);// enumerate_paths();
-
+    vector<vpath> paths = sample(30);                    // enumerate_paths();
     vector<vsol> sols = forward(paths, affine, false);
-    cout << get_master(0,0).obj() << endl;
-
+    cout << get_master(0,0).mip_obj() << endl;
     backward(sols, paths, affine);
   }
 }
@@ -26,7 +24,8 @@ vector<vsol> Stagewise::forward(vector<vpath> const &paths, bool affine, bool lp
     for (int stage = 0; stage != d_stages.size() - 1; ++stage)
     {
       int master = master_idx(stage, path);
-      solve(stage, master, affine, lp, true);
+      lp ? solve_lp(stage, master) : solve_mip(stage, master);
+
       Solution forward = solution(stage, master);
       sols.push_back(forward);
 
@@ -83,26 +82,14 @@ void Stagewise::shared_backward(vector<vsol> const &sols, bool affine)
   add_shared_cut(cut, 0);
 }
 
-void Stagewise::solve(int stage, int node, bool affine, bool lp, bool force)
+void Stagewise::solve_lp(int stage, int node)
 {
-  Master &mp = get_master(stage, node);
-  mp.solve_lp();
+  get_master(stage, node).solve_lp();
+}
 
-  if (lp)
-    return;
-
-  while (not mp.integer())
-  {
-    Cut cutting_plane = fenchel_cut(stage, node, affine);
-    if (not add_cp(cutting_plane, stage, node))    // mip could not be solved using cutting planes
-    {
-      if (force)
-        mp.solve_mip();                               // use Gurobi
-      return;
-    }
-
-    mp.solve_lp();
-  }
+void Stagewise::solve_mip(int stage, int node)
+{
+  get_master(stage, node).solve_mip();
 }
 
 

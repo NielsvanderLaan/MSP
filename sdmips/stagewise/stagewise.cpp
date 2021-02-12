@@ -35,18 +35,16 @@ GRBModel Stagewise::lsde(GRBEnv &env)
 
 Stagewise::~Stagewise()
 {
-  if (d_nodes.empty())
-    return;
-
-  for (auto it = d_nodes.begin(); it != d_nodes.end() - 1; ++it)
+  for (auto &stage : d_nodes)
   {
-    if (d_depth > 0)
+    for (auto &sub : stage)
     {
-      for (node &sub: *it)
-        delete get<2>(sub);
+      if (sub.second)
+        delete sub.second;
+
+      sub.second = nullptr;
     }
-    else                                  // enumerators are shared
-      delete get<2>(it->front());
   }
+
 }
 

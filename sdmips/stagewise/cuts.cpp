@@ -49,11 +49,6 @@ Cut Stagewise::sddp_cut(int stage, Solution const &sol)
   return ret;
 }
 
-Cut Stagewise::fenchel_cut(int stage, int node, bool affine, double tol)
-{
-  return get_fenchel(stage, node).feas_cut(solution(stage, node), affine, tol);
-}
-
 void Stagewise::init_enums(int stage, int node, Solution const &sol)
 {
   v_enum &enumerators = get_enums(stage, node);
