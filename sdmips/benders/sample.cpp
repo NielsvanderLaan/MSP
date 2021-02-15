@@ -1,14 +1,14 @@
-#include "stagewise.h"
+#include "benders.h"
 
-vector<vpath> Stagewise::sample(size_t nsamples)
+vector<vpath> Benders::sample(size_t nsamples)
 {
   vector<vpath> ret(nsamples);
   for (vpath &path : ret)
-    path.reserve(d_stages.size() - 1);   // final stage is not important
+    path.reserve(d_data.nstages() - 1);   // final stage is not important
 
-  for (auto it = d_stages.begin(); it != d_stages.end() - 1; ++it)
+  for (size_t stage = 0; stage != d_data.nstages() - 1; ++stage)
   {
-    vector<double> prob = probs(*it);
+    vector<double> prob = d_data.probs(stage);
     discrete_distribution<int> uni(prob.begin(), prob.end());
     for (vpath &path : ret)
       path.push_back(uni(d_engine));
@@ -17,13 +17,13 @@ vector<vpath> Stagewise::sample(size_t nsamples)
   return ret;
 }
 
-vector<vpath> Stagewise::enumerate_paths(int start, int end, vector<vpath> paths)
+vector<vpath> Benders::enumerate_paths(int start, int end, vector<vpath> const &paths)
 {
   vector<vpath> ret;
-  int outcomes = d_stages[start].size();
+  int outcomes = d_data.outcomes(start);
   ret.reserve(paths.size() * outcomes);
 
-  for (vpath &path : paths)
+  for (vpath const &path : paths)
   {
     for (int outcome = 0; outcome != outcomes; ++outcome)
     {
@@ -39,8 +39,8 @@ vector<vpath> Stagewise::enumerate_paths(int start, int end, vector<vpath> paths
   return ret;
 }
 
-vector<vpath> Stagewise::enumerate_paths()
+vector<vpath> Benders::enumerate_paths()
 {
-  return enumerate_paths(0, d_stages.size() - 2);
+  return enumerate_paths(0, d_data.nstages() - 2);
 }
 

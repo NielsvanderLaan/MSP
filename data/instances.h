@@ -10,6 +10,6 @@ using namespace arma;
 
 Tree ssv();
 Tree control_1D();
-Stagewise ctrl_1D(GRBEnv &env, size_t nstages, size_t n_outcomes);
+Stagewise ctrl_1D(size_t nstages, size_t n_outcomes);
 
 #endif //MSP_INSTANCES_H

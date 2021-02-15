@@ -85,14 +85,6 @@ d_data(nodes[path.back()])
   d_sp->update();
 }
 
-Enumerator::Enumerator(vector<NodeData> const &nodes, vector<int> path, vector<Cut> const &cuts,
-                       size_t mp_depth, bool leaf, GRBEnv &env)
-:
-Enumerator(nodes, path, mp_depth, leaf, env)
-{
-  for (Cut const &cut : cuts)
-    add_cut(cut);
-}
 
 Enumerator::Enumerator(const Enumerator &other)
 :

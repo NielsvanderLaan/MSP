@@ -1,6 +1,6 @@
-#include "stagewise.h"
+#include "dBenders.h"
 
-void Stagewise::add_cut(Cut &cut, int stage, vector<int> const &path)
+void dBenders::add_cut(Cut &cut, int stage, vector<int> const &path)
 {
   if (cut.d_tau.back() > 0)
     cut.scale();
@@ -9,7 +9,6 @@ void Stagewise::add_cut(Cut &cut, int stage, vector<int> const &path)
 
   get_master(stage, node).add(cut);        // no sharing
 
-  return;
   for (Enumerator &gen : get_enums(stage, node))
     gen.add_cut(cut);
 
@@ -20,7 +19,7 @@ void Stagewise::add_cut(Cut &cut, int stage, vector<int> const &path)
     get_enums(stage - 1, parent)[path[stage]].add_cut(cut);
 }
 
-void Stagewise::add_shared_cut(Cut &cut, int stage)
+void dBenders::add_shared_cut(Cut &cut, int stage)
 {
   if (cut.d_tau.back() > 0)
     cut.scale();
@@ -28,7 +27,6 @@ void Stagewise::add_shared_cut(Cut &cut, int stage)
   for (size_t node = 0; node != d_nodes[stage].size(); ++node)
     get_master(stage, node).add(cut);
 
-  return;
   for (Enumerator &gen : get_enums(stage, 0))             // enumerators are shared
     gen.add_cut(cut);
 

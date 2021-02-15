@@ -17,23 +17,24 @@ int main(int argc, char *argv[])
     int n_outcomes = stoi(argv[2]);
     int depth = stoi(argv[3]);
     bool affine = stoi(argv[4]);
+    bool sparse = (argc > 5 && string(argv[5]) == "SPARSE");
 
     cout << "number of stages: " << nstages <<
             "\noutcomes per stage: " << n_outcomes << '\n' <<
             (affine ? "Lagrangian" : "Scaled") << " cuts" <<
-            "\ndepth: " << depth << '\n' << endl;
+            "\ndepth: " << depth << '\n' <<
+            (sparse ? "sparse" : "dense") << '\n' << endl;
 
-    Stagewise sw = ctrl_1D(env, nstages, n_outcomes);
-
+    Stagewise sw = ctrl_1D(nstages, n_outcomes);
     /*
-    GRBModel sw_model = sw.lsde();
+    GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
-    */
+     */
+    spBenders decom(env, sw, depth);
 
-    cout << "SSDMIP\n";
-    sw.decom(depth);
-    sw.sddmip(affine);
+    cout << "SSDMIP" << endl;
+    decom.sddmip(affine);
 
   } catch (GRBException &e)
   {

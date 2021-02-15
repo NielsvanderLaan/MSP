@@ -1,15 +1,16 @@
-#include "stagewise.h"
+#include "dBenders.h"
 
-void Stagewise::decom(int depth)
+dBenders::dBenders(GRBEnv &env, Stagewise &data, int depth)
+:
+Benders(env, data, depth)
 {
   bool stage_specific = (depth == 0);
-  d_depth = depth;
 
-  size_t nstages = d_stages.size();
+  size_t nstages = d_data.nstages();
   d_nodes.reserve(nstages);
 
-  vpath epath {0};                            // for constructing the vertex enumerators
-  vector<NodeData> edata {d_stages[0][0]};
+  vpath epath {0};                                     // for constructing the vertex enumerators
+  vector<NodeData> edata {node_data(0,0)};
 
   for (int stage = 0; stage != nstages; ++stage)
   {
@@ -28,8 +29,8 @@ void Stagewise::decom(int depth)
 
     for (vpath &tail : sub_paths)
     {
-      Master master {d_stages[stage][tail.back()], leaf, d_env};
-      if (leaf || true)
+      Master master {node_data(stage, tail.back()), leaf, d_env};
+      if (leaf)
       {
         nodes.emplace_back(node{move(master), nullptr});
         continue;
@@ -38,24 +39,24 @@ void Stagewise::decom(int depth)
       if (not stage_specific)
       {
         for (size_t lvl = 0; lvl != tail.size(); ++lvl)
-          edata[start + lvl] = d_stages[start + lvl][tail[lvl]];
+          edata[start + lvl] = node_data(start + lvl, tail[lvl]);
       }
 
+      int future = stage + 1;
       if (not stage_specific or nodes.empty())
       {
         v_enum *e_ptr = new v_enum;
-        e_ptr->reserve(outcomes(stage + 1));
-        for (int out = 0; out != outcomes(stage + 1); ++out)
+        e_ptr->reserve(d_data.outcomes(future));
+
+        for (int out = 0; out != d_data.outcomes(future); ++out)
         {
-          edata.back() = d_stages[stage + 1][out];
+          edata.back() = node_data(future, out);
           e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, preleaf, d_env));
         }
+
         nodes.emplace_back(node{move(master), e_ptr});
       } else
-      {
         nodes.emplace_back(node{move(master), nodes.front().second});
-      }
-
     }
     d_nodes.emplace_back(move(nodes));
 
