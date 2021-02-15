@@ -42,7 +42,7 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
       }
       if (not reset)
         return fdecom(tol, affine, true);
-      //cout << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
+      cout << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
       break;
     } catch (sp_exception)
     {
