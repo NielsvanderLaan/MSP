@@ -6,8 +6,8 @@
 #include "gurobi_c++.h"
 
 #include "sdmips/tree/tree.h"
-#include "sdmips/benders/dBenders/dbenders.h"
-#include "sdmips/benders/spBenders/spbenders.h"
+#include "sdmips/benders/dbenders/dbenders.h"
+#include "sdmips/benders/spbenders/spbenders.h"
 #include "data/instances.h"
 
 using namespace std;
