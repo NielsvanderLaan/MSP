@@ -1,6 +1,6 @@
 #include "stagewise.h"
 
-void Stagewise::decom(GRBEnv &env, int depth)
+void Stagewise::decom(int depth)
 {
   bool stage_specific = (depth == 0);
   d_depth = depth;
@@ -28,8 +28,8 @@ void Stagewise::decom(GRBEnv &env, int depth)
 
     for (vpath &tail : sub_paths)
     {
-      Master master {d_stages[stage][tail.back()], leaf, env};
-      if (leaf)
+      Master master {d_stages[stage][tail.back()], leaf, d_env};
+      if (leaf || true)
       {
         nodes.emplace_back(node{move(master), nullptr});
         continue;
@@ -48,7 +48,7 @@ void Stagewise::decom(GRBEnv &env, int depth)
         for (int out = 0; out != outcomes(stage + 1); ++out)
         {
           edata.back() = d_stages[stage + 1][out];
-          e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, preleaf, env));
+          e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, preleaf, d_env));
         }
         nodes.emplace_back(node{move(master), e_ptr});
       } else

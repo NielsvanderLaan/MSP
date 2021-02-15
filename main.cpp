@@ -23,16 +23,16 @@ int main(int argc, char *argv[])
             (affine ? "Lagrangian" : "Scaled") << " cuts" <<
             "\ndepth: " << depth << '\n' << endl;
 
-    Stagewise sw = ctrl_1D(nstages, n_outcomes);
+    Stagewise sw = ctrl_1D(env, nstages, n_outcomes);
 
     /*
-    GRBModel sw_model = sw.lsde(env);
+    GRBModel sw_model = sw.lsde();
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
     */
 
     cout << "SSDMIP\n";
-    sw.decom(env, depth);
+    sw.decom(depth);
     sw.sddmip(affine);
 
   } catch (GRBException &e)

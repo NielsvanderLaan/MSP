@@ -1,5 +1,10 @@
 #include "stagewise.h"
 
+Stagewise::Stagewise(GRBEnv &env)
+:
+d_env(env)
+{}
+
 void Stagewise::add_node(NodeData const &data)
 {
   int stage = data.d_stage;
@@ -12,9 +17,9 @@ void Stagewise::add_node(NodeData const &data)
   d_stages[stage - 1].push_back(data);
 }
 
-GRBModel Stagewise::lsde(GRBEnv &env)
+GRBModel Stagewise::lsde()
 {
-  GRBModel model(env);
+  GRBModel model(d_env);
   vector<vvar> parent_vars { vvar{} };
   vector<vvar> children_vars;
 

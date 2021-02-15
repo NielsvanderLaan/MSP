@@ -20,6 +20,7 @@ typedef vector<node> vnode;
 class Stagewise
 {
 public:
+  GRBEnv &d_env;
   mt19937 d_engine{891}; // random_device{}()
 
   vector<stage_data> d_stages;
@@ -28,8 +29,9 @@ public:
 
   void add_node(NodeData const &data);
 
-  GRBModel lsde(GRBEnv &env);
-  void decom(GRBEnv &env, int depth);
+  Stagewise(GRBEnv &env);
+  GRBModel lsde();
+  void decom(int depth);
 
   void sddmip(bool affine);
   void sddp();                // TODO
@@ -51,11 +53,14 @@ public:
   Cut scaled_cut(int stage, int node, Solution const &sol, bool affine, double tol = 1e-4);
   Cut shared_scaled_cut(int stage, Solution const &sol, bool affine, double tol = 1e-4);
 
+  v_enum raw_enums(int stage, int node, Solution const &sol);
   void init_enums(int stage, int node, Solution const &sol);
 
   int master_idx(int stage, vpath const &path);
   vector<int> parents(int stage, vector<int> const &path);
   vector<int> children(int stage, int node);
+  vector<int> tail(int stage, int node);
+
   Master& get_master(int stage, int node);
   v_enum &get_enums(int stage, int node);
   int outcomes(int stage) const;

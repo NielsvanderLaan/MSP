@@ -8,6 +8,8 @@ void Stagewise::add_cut(Cut &cut, int stage, vector<int> const &path)
   int node = master_idx(stage, path);
 
   get_master(stage, node).add(cut);        // no sharing
+
+  return;
   for (Enumerator &gen : get_enums(stage, node))
     gen.add_cut(cut);
 
@@ -26,6 +28,7 @@ void Stagewise::add_shared_cut(Cut &cut, int stage)
   for (size_t node = 0; node != d_nodes[stage].size(); ++node)
     get_master(stage, node).add(cut);
 
+  return;
   for (Enumerator &gen : get_enums(stage, 0))             // enumerators are shared
     gen.add_cut(cut);
 

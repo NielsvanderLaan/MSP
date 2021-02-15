@@ -1,6 +1,6 @@
 #include "instances.h"
 
-Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
+Stagewise ctrl_1D(GRBEnv &env, size_t nstages, size_t n_outcomes)
 {
   int seed = 1234; //random_device{}()
   mt19937 engine(seed);
@@ -31,7 +31,8 @@ Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
                  types,
                  senses };
 
-  Stagewise sw;
+
+  Stagewise sw(env);
   sw.add_node(root);
 
   sp_mat Bmat = {umat{{0, 1}, {0, 0}}, vec{-1.0, 1.0}, 4, 2};

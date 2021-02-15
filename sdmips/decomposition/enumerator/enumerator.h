@@ -29,6 +29,8 @@ public:
 
   Enumerator() = default;
   Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env);
+  Enumerator(vector<NodeData> const &nodes, vector<int> path, vector<Cut> const &cuts,
+             size_t mp_depth, bool leaf, GRBEnv &env);
   Enumerator(Enumerator const &other);
   Enumerator(Enumerator &&other);
   ~Enumerator();

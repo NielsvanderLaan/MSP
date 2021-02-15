@@ -53,6 +53,21 @@ vector<int> Stagewise::children(int stage, int node)
   return ret;
 }
 
+vector<int> Stagewise::tail(int stage, int node)
+{
+  vector<int> ret(min(stage + 1, d_depth));
+
+  for (size_t depth = 0; depth != ret.size(); ++depth)
+  {
+    ret[depth] = node % outcomes(stage - depth);
+    assert(ret[depth] < 10);
+    node /= outcomes(stage - depth);
+  }
+  reverse(ret.begin(), ret.end());
+  return ret;
+}
+
+
 vector<int> Stagewise::nvars(int stage) const
 {
   vector<int> ret(stage + 1);
