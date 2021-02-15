@@ -31,10 +31,17 @@ int main(int argc, char *argv[])
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
      */
-    spBenders decom(env, sw, depth);
-
     cout << "SSDMIP" << endl;
-    decom.sddmip(affine);
+    if (sparse)
+    {
+      spBenders decom(env, sw, depth);
+      decom.sddmip(affine);
+    } else
+    {
+      dBenders decom(env, sw, depth);
+      decom.sddmip(affine);
+    }
+
 
   } catch (GRBException &e)
   {
