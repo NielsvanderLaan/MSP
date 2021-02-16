@@ -22,12 +22,15 @@ public:
     mt19937 d_engine;
 
     Benders(GRBEnv &env, Stagewise &data, int depth);
+    virtual ~Benders() = default;
 
-    void sddmip(bool affine);
-    void sddp();                // TODO
+    void sddmip(bool affine, size_t nsamples = 30);
+    void sddp(size_t nsamples = 30);
     vector<vsol> forward(vector<vpath> const &paths, bool lp);
+
     void backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine);
     void shared_backward(vector<vsol> const &sols, bool affine);
+    void sddp_backward(vector<vsol> const &sols);
 
     vector<vpath> sample(size_t nsamples = 30);
     vector<vpath> enumerate_paths(int start, int end, vector<vpath> const &paths = vector<vpath>(1));

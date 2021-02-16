@@ -1,17 +1,35 @@
 #include "benders.h"
 
-void Benders::sddmip(bool affine)
+void Benders::sddmip(bool affine, size_t nsamples)
 {
-  size_t max_iter = 100;
+  size_t max_iter = 2;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
-    vector<vpath> paths = sample(30);
+    vector<vpath> paths = sample(nsamples);
     vector<vsol> sols = forward(paths, false);
 
     print_root();
-
     backward(sols, paths, affine);
   }
+
+  print_root();
+}
+
+
+void Benders::sddp(size_t nsamples)
+{
+  size_t max_iter = 2;
+
+  for (int iter = 0; iter != max_iter; ++iter)
+  {
+    vector<vpath> paths = sample(nsamples);
+    vector<vsol> sols = forward(paths, false);
+
+    print_root();
+    sddp_backward(sols);
+  }
+
+  print_root();
 }
 
 vector<vsol> Benders::forward(vector<vpath> const &paths, bool lp)
@@ -81,6 +99,26 @@ void Benders::shared_backward(vector<vsol> const &sols, bool affine)
   }
 
   Cut cut = shared_scaled_cut(0, sols[0][0], affine);
+  add_cut(cut, 0, sols[0][0]);
+}
+
+void Benders::sddp_backward(vector<vsol> const &sols)
+{
+  for (int stage = d_data.nstages() - 2; stage != 0; --stage)
+  {
+    vector<Cut> cuts;
+    cuts.reserve(sols.size());
+    for (size_t idx = 0; idx != sols.size(); ++idx)
+      cuts.emplace_back(sddp_cut(stage, sols[idx][stage]));
+
+    for (size_t idx = 0; idx != cuts.size(); ++idx)
+    {
+      if (cuts[idx].is_proper(sols[idx][stage]))
+        add_shared_cut(cuts[idx], stage);
+    }
+  }
+
+  Cut cut = sddp_cut(0, sols[0][0]);
   add_cut(cut, 0, sols[0][0]);
 }
 

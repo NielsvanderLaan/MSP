@@ -32,16 +32,15 @@ int main(int argc, char *argv[])
     sw_model.optimize();
     */
     cout << "SSDMIP" << endl;
-    if (sparse)
-    {
-      spBenders decom(env, sw, depth);
-      decom.sddmip(affine);
-    } else
-    {
-      dBenders decom(env, sw, depth);
-      decom.sddmip(affine);
-    }
 
+    unique_ptr<Benders> decom;
+    if (sparse)
+      decom = make_unique<spBenders>(env, sw, depth);
+    else
+      decom = make_unique<dBenders>(env, sw, depth);
+
+    decom->sddp();
+    decom->sddmip(affine);
 
   } catch (GRBException &e)
   {
