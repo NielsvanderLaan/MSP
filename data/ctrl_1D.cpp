@@ -4,7 +4,7 @@ Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
 {
   int seed = 1234; //random_device{}()
   mt19937 engine(seed);
-  uniform_real_distribution<double> uni(0.5, 1.0);
+  uniform_real_distribution<double> uni(0.0, 1.0);
 
   vector<int> scenarios {1};
   for (size_t stage = 0; stage != nstages - 1; ++stage)
@@ -38,6 +38,7 @@ Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
   sp_mat Bmat = {umat{{0, 1}, {0, 0}}, vec{-1.0, 1.0}, 4, 2};
 
   double beta = 0.9;
+  double costs = beta;
   for (int stage = 1; stage != stages ; ++stage)
   {
     double prob = 1.0 / scenarios[stage];
@@ -45,7 +46,7 @@ Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
     NodeData sub {stage + 1,
                   prob,
                   0,
-                  vec{beta, beta, 0.0, 0.0},
+                  vec{costs, costs, 0.0, 0.0},
                   lb,
                   ub,
                   Amat,
@@ -66,7 +67,7 @@ Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
       sw.add_node(sub);
     }
 
-    beta = beta * beta;
+    costs *= beta;
   }
 
   return sw;

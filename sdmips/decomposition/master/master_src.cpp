@@ -19,6 +19,7 @@ void Master::solve_mip()
 {
   d_mip->optimize();
   assert(d_mip->get(GRB_IntAttr_Status) == 2);
+
   d_x_n = mip_xvals();
   d_theta_n = mip_theta();
 }

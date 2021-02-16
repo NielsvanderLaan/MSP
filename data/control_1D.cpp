@@ -34,7 +34,9 @@ Tree control_1D()
 
   sp_mat Bmat = {umat{{0, 1}, {0, 0}}, vec{-1.0, 1.0}, 4, 2};
 
+
   double beta = 0.9;
+  double costs = beta;
   double prob = 1.0;
   for (int stage = 1; stage != stages ; ++stage)
   {
@@ -43,7 +45,7 @@ Tree control_1D()
     NodeData sub {stage + 1,
                   prob,
                   0,
-                  vec{beta, beta, 0.0, 0.0},
+                  vec{costs, costs, 0.0, 0.0},
                   lb,
                   ub,
                   Amat,
@@ -63,7 +65,7 @@ Tree control_1D()
         nodes[stage].push_back(tree.add_node(sub, parent));
 
     }
-    beta = beta * beta;
+    costs *= beta;
   }
 
   return tree;

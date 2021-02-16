@@ -23,7 +23,7 @@ void Enumerator::solve_sp()
       sub_val();
     } catch (GRBException &e)
     {
-      throw sp_exception();
+      throw sp_exception{};
     }
     return;
   }
