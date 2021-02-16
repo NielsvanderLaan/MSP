@@ -64,6 +64,7 @@ public:
   void set_bounds(bool affine, double M);
   void set_tau_bounds(bool affine, double M);
   void set_mp(bool tight);
+  void set_sp(bool tight);
 };
 
 class mp_exception : public exception

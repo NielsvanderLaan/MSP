@@ -5,10 +5,12 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
   //reset = true;
   if (reset) clear();
   set_mp(false);              // relax mp
+  set_sp(false);              // relax sp
 
   Cut cut;
   double diff = GRB_INFINITY;
-  bool first_strike = false;
+  bool mp_strike = false;
+  bool sp_strike = false;
 
   while (true)
   {
@@ -27,16 +29,16 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
         break;
       add_point(point());
 
-      if (first_strike)
-        set_mp(false);
-      first_strike = false;
+      if (mp_strike) set_mp(false);
+      mp_strike = false;
 
-      continue;
-    } catch (mp_exception)
+      if (sp_strike) set_sp(false);
+      sp_strike = false;
+    } catch (mp_exception &e)
     {
-      if (not first_strike)
+      if (not mp_strike)
       {
-        first_strike = true;
+        mp_strike = true;
         set_mp(true);
         continue;
       }
@@ -44,12 +46,21 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
         return fdecom(tol, affine, true);
       cout << "Fdecom: unrecoverable numerical difficulties, gap: " << cut.d_alpha - sub_bound() << '\n';
       break;
-    } catch (sp_exception)
+    } catch (sp_exception &e)
     {
+      if (not sp_strike)
+      {
+        sp_strike = true;
+        set_sp(true);
+        continue;
+      }
+
       cout << "sp_status: " << sp_status() << '\n';
-      break;
+      cut.d_alpha = -GRB_INFINITY;
+      return cut;
     }
   }
+
   cut.d_alpha = sub_bound();
   assert(cut.depth() > 0);
 

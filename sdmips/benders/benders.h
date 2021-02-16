@@ -38,7 +38,7 @@ public:
     Cut shared_scaled_cut(int stage, Solution const &sol, bool affine, double tol = 1e-4);
     v_enum &init_enums(int stage, int node, Solution const &sol);
 
-    void add_cut_to_root(Cut &cut, Solution const &sol);
+    void add_cut(Cut &cut, int stage, Solution const &sol, vpath const &path = {0});
 
     NodeData &node_data(int stage, int outcome);
         // tree structure

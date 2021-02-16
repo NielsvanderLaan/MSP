@@ -12,8 +12,23 @@ void Enumerator::solve_sp()
 {
   d_sp->optimize();
 
-  if (sp_status() != 2)
-    throw sp_exception{};
+  int status = sp_status();
+  if (status == GRB_OPTIMAL or status == GRB_SUBOPTIMAL)
+    return;
+
+  if (status == GRB_TIME_LIMIT)
+  {
+    try
+    {
+      sub_val();
+    } catch (GRBException &e)
+    {
+      throw sp_exception();
+    }
+    return;
+  }
+
+  throw sp_exception{};
 }
 
 int Enumerator::sp_status() const
@@ -211,6 +226,13 @@ void Enumerator::set_mp(bool tight)
   d_mp->set(GRB_IntParam_NumericFocus, tight ? 3: 0);
   d_mp->set(GRB_IntParam_Presolve, tight ? 0 : -1);
   d_mp->reset();
+}
+
+void Enumerator::set_sp(bool tight)
+{
+  d_sp->set(GRB_IntParam_Method, tight ? 0 : -1);
+  d_sp->set(GRB_IntParam_NumericFocus, tight ? 3: 0);
+  d_sp->reset();
 }
 
 void Enumerator::clear()
