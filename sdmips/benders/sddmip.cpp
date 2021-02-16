@@ -52,14 +52,21 @@ void Benders::backward(vector<vsol> const &sols, vector<vpath> const &paths, boo
                                    master_idx(stage, paths[idx]),
                                    sols[idx][stage],
                                    affine));
-    // do not combine the for loops: cuts should be added in bulk
-    for (size_t idx = 0; idx != paths.size(); ++idx)
-      add_cut(cuts[idx], stage, paths[idx]);
-
+        // do not combine the for loops: cuts should be added in bulk
+    int count = 0;
+    for (size_t idx = 0; idx != cuts.size(); ++idx)
+    {
+      if (cuts[idx].is_proper(sols[idx][stage]))
+      {
+        add_cut(cuts[idx], stage, paths[idx]);
+        ++count;
+      }
+    }
+    cout << count << " out of " << cuts.size() << " added\n";
   }
   // root node: solutions are identical, just add the cut once
   Cut cut = scaled_cut(0, 0, sols[0][0], affine);
-  add_cut(cut, 0, paths[0]);
+  add_cut_to_root(cut, sols[0][0]);
 }
 
 void Benders::shared_backward(vector<vsol> const &sols, bool affine)
@@ -72,12 +79,27 @@ void Benders::shared_backward(vector<vsol> const &sols, bool affine)
       cuts.emplace_back(shared_scaled_cut(stage,
                                           sols[idx][stage],
                                           affine));
-    for (Cut &cut : cuts)
-      add_shared_cut(cut, stage);
+
+    int count = 0;
+    for (size_t idx = 0; idx != cuts.size(); ++idx)
+    {
+      if (cuts[idx].is_proper(sols[idx][stage]))
+      {
+        add_shared_cut(cuts[idx], stage);
+        ++count;
+      }
+    }
+    cout << count << " out of " << cuts.size() << " added\n";
   }
 
   Cut cut = shared_scaled_cut(0, sols[0][0], affine);
-  add_shared_cut(cut, 0);
+  add_cut_to_root(cut, sols[0][0]);
+}
+
+void Benders::add_cut_to_root(Cut &cut, const Solution &sol)
+{
+  if (cut.is_proper(sol))
+    add_shared_cut(cut, 0);
 }
 
 void Benders::print_root()

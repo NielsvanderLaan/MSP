@@ -2,10 +2,12 @@
 
 Master &spBenders::get_master(int stage, int node)
 {
+  if (stage == 0 and node == 0)
+    return d_root;
+
   d_master = make_unique<Master>(node_data(stage, outcome(stage, node)),
                                  stage == d_data.nstages() - 1,
                                  d_env);
-
 
   if (stage < d_cuts.size())
   {

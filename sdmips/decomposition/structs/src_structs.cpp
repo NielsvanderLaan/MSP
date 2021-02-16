@@ -85,6 +85,12 @@ int Cut::depth() const
   return d_tau.size();
 }
 
+bool Cut::is_proper(Solution const &sol, double tol) const
+{
+  return sol.theta_n() < scaled_rhs(*this, sol) - tol;
+}
+
+
 Cut operator*(double scale, const Cut &other)
 {
   return other * scale;

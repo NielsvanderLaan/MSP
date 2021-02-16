@@ -20,11 +20,6 @@ bool Master::add_cut(Cut const &cut, double tol)
   return true;
 }
 
-void Master::add(Cut const &cut)
-{
-  add_cut(cut, -GRB_INFINITY);
-}
-
 void Master::push_cut(Cut const &cut, double rhs)
 {
   d_cuts.push_back(cut);

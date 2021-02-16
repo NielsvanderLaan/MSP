@@ -15,6 +15,8 @@ public:
   unique_ptr<Master> d_master;
   v_enum d_gens;
 
+  Master d_root;
+
   spBenders(GRBEnv &env, Stagewise &data, int depth);
 
   outer_apx const &apx(int stage, int node);
@@ -24,6 +26,7 @@ public:
 
   Master &get_master(int stage, int node) override;
   v_enum &get_enums(int stage, int node) override;
+
 };
 
 #endif //MSP_SPBENDERS_H
