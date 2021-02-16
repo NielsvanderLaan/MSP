@@ -2,7 +2,7 @@
 
 void Benders::sddmip(bool affine, size_t nsamples)
 {
-  size_t max_iter = 2;
+  size_t max_iter = 100;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
   {
     vector<vpath> paths = sample(nsamples);
@@ -18,7 +18,7 @@ void Benders::sddmip(bool affine, size_t nsamples)
 
 void Benders::sddp(size_t nsamples)
 {
-  size_t max_iter = 2;
+  size_t max_iter = 5;
 
   for (int iter = 0; iter != max_iter; ++iter)
   {
