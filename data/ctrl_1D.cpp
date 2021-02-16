@@ -4,7 +4,7 @@ Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
 {
   int seed = 1234; //random_device{}()
   mt19937 engine(seed);
-  uniform_real_distribution<double> uni(0.0, 1.0);
+  uniform_real_distribution<double> uni(0.5, 1.0);
 
   vector<int> scenarios {1};
   for (size_t stage = 0; stage != nstages - 1; ++stage)
