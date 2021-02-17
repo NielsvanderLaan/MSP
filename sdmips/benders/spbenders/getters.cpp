@@ -9,8 +9,11 @@ Master &spBenders::get_master(int stage, int node)
                                  stage == d_data.nstages() - 1,
                                  d_env);
 
-  if (stage < d_cuts.size())
+  if (stage < d_stage_apx.size())
   {
+    for (Cut const &cut : d_stage_apx[stage])
+      d_master->push_cut(cut);
+
     for (Cut const &cut : apx(stage, node))
       d_master->push_cut(cut);
   }
@@ -52,16 +55,22 @@ v_enum &spBenders::get_enums(int stage, int node)
 
   for (Enumerator &gen : d_gens)
   {
+    for (Cut const &cut : d_stage_apx[stage])
+      gen.add_cut(cut);
+
     for (Cut const &cut : apx(stage, node))
       gen.add_cut(cut);
   }
 
-  if (future == d_cuts.size())     // stage = T - 1: enumerators are leafs
+  if (future == d_nodal_apx.size())     // stage = T - 1: enumerators are leafs
     return d_gens;
     // add contemporary cuts
   vector<int> childs = children(stage, node);
   for (int idx = 0; idx != childs.size(); ++idx)
   {
+    for (Cut const &cut : d_stage_apx[future])
+      d_gens[idx].add_cut(cut);
+
     int child = childs[idx];
     for (Cut const &cut : apx(future, child))
       d_gens[idx].add_cut(cut);
@@ -72,5 +81,5 @@ v_enum &spBenders::get_enums(int stage, int node)
 
 outer_apx const &spBenders::apx(int stage, int node)
 {
-  return d_depth == 0 ? d_cuts[stage].front() : d_cuts[stage][node];
+  return d_depth == 0 ? d_nodal_apx[stage].front() : d_nodal_apx[stage][node];
 }

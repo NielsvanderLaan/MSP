@@ -18,21 +18,24 @@ int Benders::master_idx(int stage, vpath const &path) const
   return ret;
 }
 
-vector<int> Benders::parents(int stage, vector<int> const &path) const
+vector<int> Benders::parents(int stage, int node) const
 {
   assert(d_depth > 0);
 
+  int npaths = d_data.outcomes(max(stage - d_depth, 0));
+  vector<int> ret(npaths);
+
   int offset = 0;
   int jump = 1;
+  vpath sub_path = tail(stage, node);
 
-  for (int lvl = 1; lvl < min(d_depth, stage + 1); ++lvl)
+  for (int lvl = 1; lvl < sub_path.size(); ++lvl)
   {
-    offset += path[stage - lvl] * jump;
+    sub_path.pop_back();
+    offset += sub_path.back() * jump;
     jump *= d_data.outcomes(stage- lvl);
   }
 
-  int npaths = d_data.outcomes(max(stage - d_depth, 0));
-  vector<int> ret(npaths);
   for (int idx = 0; idx != npaths; ++idx)
     ret[idx] = idx * jump + offset;
 

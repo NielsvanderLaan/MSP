@@ -41,19 +41,19 @@ public:
     Cut shared_scaled_cut(int stage, Solution const &sol, bool affine, double tol = 1e-4);
     v_enum &init_enums(int stage, int node, Solution const &sol);
 
-    void add_cut(Cut &cut, int stage, Solution const &sol, vpath const &path = {0});
+    void add_cut(Cut &cut, int stage, int node, Solution const &sol);
 
     NodeData &node_data(int stage, int outcome);
         // tree structure
     int master_idx(int stage, vpath const &path) const;
     int outcome(int stage, int node) const;
-    vector<int> parents(int stage, vector<int> const &path) const;
+    vector<int> parents(int stage, int node) const;
     vector<int> children(int stage, int node) const;
     vector<int> tail(int stage, int node) const;
 
     void print_root();
 
-    virtual void add_cut(Cut &cut, int stage, vector<int> const &path) = 0;
+    virtual void add_cut(Cut &cut, int stage, int node) = 0;
     virtual void add_shared_cut(Cut &cut, int stage) = 0;
 
     virtual Master &get_master(int stage, int node) = 0;

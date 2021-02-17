@@ -13,7 +13,7 @@ public:
 
   dBenders(GRBEnv &env, Stagewise &data, int depth);
 
-  void add_cut(Cut &cut, int stage, vector<int> const &path) override;
+  void add_cut(Cut &cut, int stage, int node) override;
   void add_shared_cut(Cut &cut, int stage) override;
 
   Master &get_master(int stage, int node) override;

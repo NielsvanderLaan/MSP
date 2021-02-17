@@ -15,7 +15,6 @@ void Benders::sddmip(bool affine, size_t nsamples)
   print_root();
 }
 
-
 void Benders::sddp(size_t nsamples)
 {
   size_t max_iter = 5;
@@ -48,7 +47,7 @@ vector<vsol> Benders::forward(vector<vpath> const &paths, bool lp)
         mp.update(sols.back());
 
       lp ? mp.solve_lp() : mp.solve_mip();
-      sols.push_back(mp.forward());
+      sols.emplace_back(mp.forward());
     }
     ret.emplace_back(move(sols));
   }
@@ -72,12 +71,15 @@ void Benders::backward(vector<vsol> const &sols, vector<vpath> const &paths, boo
                                    affine));
 
     for (size_t idx = 0; idx != cuts.size(); ++idx)
-      add_cut(cuts[idx], stage,  sols[idx][stage], paths[idx]);
+      add_cut(cuts[idx],
+              stage,
+              master_idx(stage, paths[idx]),
+              sols[idx][stage]);
 
   }
 
   Cut cut = scaled_cut(0, 0, sols[0][0], affine);
-  add_cut(cut, 0, sols[0][0]);
+  add_cut(cut, 0, 0, sols[0][0]);
 }
 
 void Benders::shared_backward(vector<vsol> const &sols, bool affine)
@@ -99,7 +101,7 @@ void Benders::shared_backward(vector<vsol> const &sols, bool affine)
   }
 
   Cut cut = shared_scaled_cut(0, sols[0][0], affine);
-  add_cut(cut, 0, sols[0][0]);
+  add_cut(cut, 0, 0, sols[0][0]);
 }
 
 void Benders::sddp_backward(vector<vsol> const &sols)
@@ -119,13 +121,13 @@ void Benders::sddp_backward(vector<vsol> const &sols)
   }
 
   Cut cut = sddp_cut(0, sols[0][0]);
-  add_cut(cut, 0, sols[0][0]);
+  add_cut(cut, 0, 0, sols[0][0]);
 }
 
-void Benders::add_cut(Cut &cut, int stage,  Solution const &sol, vpath const &path)
+void Benders::add_cut(Cut &cut, int stage, int node, Solution const &sol)
 {
   if (cut.is_proper(sol))
-    add_cut(cut, stage, path);
+    add_cut(cut, stage, node);
 }
 
 void Benders::print_root()

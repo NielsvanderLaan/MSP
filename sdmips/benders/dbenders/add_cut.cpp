@@ -1,11 +1,9 @@
 #include "dbenders.h"
 
-void dBenders::add_cut(Cut &cut, int stage, vector<int> const &path)
+void dBenders::add_cut(Cut &cut, int stage, int node)
 {
   if (cut.d_tau.back() > 0)
     cut.scale();
-
-  int node = master_idx(stage, path);
 
   get_master(stage, node).push_cut(cut);        // no sharing
 
@@ -14,9 +12,16 @@ void dBenders::add_cut(Cut &cut, int stage, vector<int> const &path)
 
   if (stage == 0)     // root problem --> no parents
     return;
-
+    /*
+  int out = path[stage];
   for (size_t parent : parents(stage, path))
-    get_enums(stage - 1, parent)[path[stage]].add_cut(cut);
+    get_enums(stage - 1, parent)[out].add_cut(cut);
+    */
+
+  int out = outcome(stage, node);
+  for (size_t parent : parents(stage, node))
+    get_enums(stage - 1, parent)[out].add_cut(cut);
+
 }
 
 void dBenders::add_shared_cut(Cut &cut, int stage)

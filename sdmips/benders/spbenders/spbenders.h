@@ -10,7 +10,8 @@ typedef vector<outer_apx> stage_apx;
 class spBenders: public Benders
 {
 public:
-  vector<stage_apx> d_cuts;
+  vector<stage_apx> d_nodal_apx;
+  vector<outer_apx> d_stage_apx;
 
   unique_ptr<Master> d_master;
   v_enum d_gens;
@@ -21,7 +22,7 @@ public:
 
   outer_apx const &apx(int stage, int node);
 
-  void add_cut(Cut &cut, int stage, vector<int> const &path) override;
+  void add_cut(Cut &cut, int stage, int node) override;
   void add_shared_cut(Cut &cut, int stage) override;
 
   Master &get_master(int stage, int node) override;
