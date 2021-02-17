@@ -54,7 +54,7 @@ Benders(env, data, depth)
           e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, preleaf, d_env));
         }
 
-        nodes.emplace_back(node{move(master), e_ptr});
+        nodes.emplace_back(node{move(master), move(e_ptr)});
       } else
         nodes.emplace_back(node{move(master), nodes.front().second});
     }
