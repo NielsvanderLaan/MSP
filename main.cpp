@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     else
       decom = make_unique<dBenders>(env, sw, depth);
 
-    //decom->sddp();
+    decom->sddp();
     decom->sddmip(affine);
 
   } catch (GRBException &e)
