@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
       benders = make_unique<dBenders>(env, sw, depth);
 
     benders->decom(SDDP, 5);
-    benders->decom(affine ? LR : SC);
+    benders->decom(affine ? LR : SC, 250);
   } catch (GRBException &e)
   {
     cout << e.getErrorCode() << ' ' << e.getMessage() << '\n';
