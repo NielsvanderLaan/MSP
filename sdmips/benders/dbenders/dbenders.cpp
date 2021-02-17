@@ -45,7 +45,7 @@ Benders(env, data, depth)
       int future = stage + 1;
       if (not stage_specific or nodes.empty())
       {
-        v_enum *e_ptr = new v_enum;
+        shared_ptr<v_enum> e_ptr = make_shared<v_enum>();
         e_ptr->reserve(d_data.outcomes(future));
 
         for (int out = 0; out != d_data.outcomes(future); ++out)
@@ -60,7 +60,7 @@ Benders(env, data, depth)
     }
     d_nodes.emplace_back(move(nodes));
 
-    for (NodeData &data : edata)
-      data.to_box();
+    for (NodeData &node : edata)
+      node.to_box();
   }
 }

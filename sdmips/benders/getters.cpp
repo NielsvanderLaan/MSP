@@ -1,6 +1,6 @@
 #include "benders.h"
 
-NodeData &Benders::node_data(int stage, int outcome)
+NodeData const &Benders::node_data(int stage, int outcome)
 {
   return d_data.d_stages[stage][outcome];
 }

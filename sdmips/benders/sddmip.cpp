@@ -1,35 +1,19 @@
 #include "benders.h"
 
-void Benders::sddmip(bool affine, size_t nsamples)
+void Benders::decom(Family type, size_t max_iter, bool lp, size_t nsamples)
 {
-  size_t max_iter = 100;
-  for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion
+  for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion, print more info
   {
     vector<vpath> paths = sample(nsamples);
-    vector<vsol> sols = forward(paths, false);
+    vector<vsol> sols = forward(paths, lp);
 
     print_root();
-    backward(sols, paths, affine);
+    backward(type, sols, paths);
   }
 
   print_root();
 }
 
-void Benders::sddp(size_t nsamples)
-{
-  size_t max_iter = 5;
-
-  for (int iter = 0; iter != max_iter; ++iter)
-  {
-    vector<vpath> paths = sample(nsamples);
-    vector<vsol> sols = forward(paths, false);
-
-    print_root();
-    sddp_backward(sols);
-  }
-
-  print_root();
-}
 
 vector<vsol> Benders::forward(vector<vpath> const &paths, bool lp)
 {
@@ -54,10 +38,9 @@ vector<vsol> Benders::forward(vector<vpath> const &paths, bool lp)
   return ret;
 }
 
-void Benders::backward(vector<vsol> const &sols, vector<vpath> const &paths, bool affine)
+void Benders::backward(Family type, vector<vsol> const &sols, vector<vpath> const &paths)
 {
-  if (d_depth == 0)
-    return shared_backward(sols, affine);
+  bool shared = (type == SDDP) or (d_depth == 0);
 
   for (int stage = d_data.nstages() - 2; stage != 0; --stage)
   {
@@ -65,69 +48,30 @@ void Benders::backward(vector<vsol> const &sols, vector<vpath> const &paths, boo
     cuts.reserve(paths.size());
 
     for (size_t idx = 0; idx != paths.size(); ++idx)
-      cuts.emplace_back(scaled_cut(stage,
-                                   master_idx(stage, paths[idx]),
-                                   sols[idx][stage],
-                                   affine));
+      cuts.emplace_back(compute_cut(type,
+                                    sols[idx][stage],
+                                    stage,
+                                    shared ? 0 : master_idx(stage, paths[idx])));
 
+        // do not combine the for loops: cut have to be added in bulk
     for (size_t idx = 0; idx != cuts.size(); ++idx)
       add_cut(cuts[idx],
+              sols[idx][stage],
+              shared,
               stage,
-              master_idx(stage, paths[idx]),
-              sols[idx][stage]);
-
+              shared ? -1 : master_idx(stage, paths[idx]));
   }
-
-  Cut cut = scaled_cut(0, 0, sols[0][0], affine);
-  add_cut(cut, 0, 0, sols[0][0]);
+      // root node: sols are identical
+  Cut cut = compute_cut(type, sols[0][0], 0, 0);
+  add_cut(cut, sols[0][0], shared, 0, 0);
 }
 
-void Benders::shared_backward(vector<vsol> const &sols, bool affine)
+void Benders::add_cut(Cut &cut, Solution const &sol, bool shared, int stage, int node)
 {
-  for (int stage = d_data.nstages() - 2; stage != 0; --stage)
-  {
-    vector<Cut> cuts;
-    cuts.reserve(sols.size());
-    for (size_t idx = 0; idx != sols.size(); ++idx)
-      cuts.emplace_back(shared_scaled_cut(stage,
-                                          sols[idx][stage],
-                                          affine));
+  if (not shared) assert(node != -1);
 
-    for (size_t idx = 0; idx != cuts.size(); ++idx)
-    {
-      if (cuts[idx].is_proper(sols[idx][stage]))
-        add_shared_cut(cuts[idx], stage);
-    }
-  }
-
-  Cut cut = shared_scaled_cut(0, sols[0][0], affine);
-  add_cut(cut, 0, 0, sols[0][0]);
-}
-
-void Benders::sddp_backward(vector<vsol> const &sols)
-{
-  for (int stage = d_data.nstages() - 2; stage != 0; --stage)
-  {
-    vector<Cut> cuts;
-    cuts.reserve(sols.size());
-    for (size_t idx = 0; idx != sols.size(); ++idx)
-      cuts.emplace_back(sddp_cut(stage, sols[idx][stage]));
-
-    for (size_t idx = 0; idx != cuts.size(); ++idx)
-    {
-      if (cuts[idx].is_proper(sols[idx][stage]))
-        add_shared_cut(cuts[idx], stage);
-    }
-  }
-
-  Cut cut = sddp_cut(0, sols[0][0]);
-  add_cut(cut, 0, 0, sols[0][0]);
-}
-
-void Benders::add_cut(Cut &cut, int stage, int node, Solution const &sol)
-{
   if (cut.is_proper(sol))
-    add_cut(cut, stage, node);
+    shared ? add_shared_cut(cut, stage) : add_cut(cut, stage, node);
 }
 
 void Benders::print_root()

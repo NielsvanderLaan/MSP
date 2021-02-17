@@ -1,5 +1,21 @@
 #include "benders.h"
 
+Cut Benders::compute_cut(Family type, Solution const &sol, int stage, int node)
+{
+  switch (type)
+  {
+    case SDDP:
+      return sddp_cut(stage, sol);
+    case LR:
+      return scaled_cut(stage, node, sol, true);
+    case SC:
+      return scaled_cut(stage, node, sol, false);
+    default:
+      cout << "unknown cut type\n";
+      exit(1);
+  }
+}
+
 Cut Benders::scaled_cut(int stage, int node, const Solution &sol, bool affine, double tol)
 {
   Cut ret;
@@ -25,12 +41,6 @@ Cut Benders::scaled_cut(int stage, int node, const Solution &sol, bool affine, d
   } while (crho > tol);
 
   return ret;
-}
-
-Cut Benders::shared_scaled_cut(int stage, const Solution &sol, bool affine, double tol)
-{
-  assert(d_depth == 0);
-  return scaled_cut(stage, 0, sol, affine, tol);
 }
 
 Cut Benders::sddp_cut(int stage, Solution const &sol)

@@ -9,6 +9,7 @@
 #include "sdmips/benders/dbenders/dbenders.h"
 #include "sdmips/benders/spbenders/spbenders.h"
 #include "data/instances.h"
+#include "sdmips/benders/families.h"
 
 using namespace std;
 using namespace arma;
