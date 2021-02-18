@@ -50,7 +50,7 @@ public:
     vector<int> children(int stage, int node) const;
     vector<int> tail(int stage, int node) const;
 
-    void print_root(size_t iter = 0);
+    void print_root();
 
     virtual void add_cut(Cut &cut, int stage, int node) = 0;
     virtual void add_shared_cut(Cut &cut, int stage) = 0;

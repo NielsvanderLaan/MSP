@@ -2,7 +2,6 @@
 
 Cut Enumerator::fdecom(double tol, bool affine, bool reset)
 {
-  //reset = true;
   if (reset) clear();
   set_mp(false);              // relax mp
   set_sp(false);              // relax sp
