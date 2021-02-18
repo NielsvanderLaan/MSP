@@ -7,7 +7,7 @@ void Benders::decom(Family type, size_t max_iter, bool lp, size_t nsamples)
     vector<vpath> paths = sample(nsamples);
     vector<vsol> sols = forward(paths, lp);
 
-    print_root();
+    print_root(iter + 1);
     backward(type, sols, paths);
   }
 
@@ -74,9 +74,10 @@ void Benders::add_cut(Cut &cut, Solution const &sol, bool shared, int stage, int
     shared ? add_shared_cut(cut, stage) : add_cut(cut, stage, node);
 }
 
-void Benders::print_root()
+void Benders::print_root(size_t iter)
 {
   Master &root = get_master(0, 0);
   root.solve_mip();
+  root.d_mip->write("roots/root" + to_string(iter) + ".lp");
   cout << root.mip_obj() << endl;
 }

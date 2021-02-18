@@ -3,13 +3,6 @@
 void Master::solve_lp()
 {
   d_lp->optimize();
-  int status = d_lp->get(GRB_IntAttr_Status);
-  if (status != 2)
-  {
-    d_lp->write("lp.lp");
-    exit(status);
-  }
-
   assert(d_lp->get(GRB_IntAttr_Status) == 2);
   d_x_n = lp_xvals();
   d_theta_n = lp_theta();

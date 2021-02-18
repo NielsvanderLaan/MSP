@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     else
       benders = make_unique<dBenders>(env, sw, depth);
 
-    benders->decom(SDDP, 5);
+    benders->decom(SDDP, 5, false);
     benders->decom(affine ? LR : SC, 250);
   } catch (GRBException &e)
   {
