@@ -25,21 +25,26 @@ int main(int argc, char *argv[])
             "\ndepth: " << depth << '\n' <<
             (sparse ? "sparse" : "dense") << '\n' << endl;
 
-    Stagewise sw = ctrl_1D(nstages, n_outcomes);
+    //Stagewise sw = ctrl_1D(nstages, n_outcomes);
+    Stagewise sw = sclsp(nstages, n_outcomes);
+
     /*
     GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
     */
-    cout << "SSDMIP" << endl;
+
     unique_ptr<Benders> benders;
     if (sparse)
       benders = make_unique<spBenders>(env, sw, depth);
     else
       benders = make_unique<dBenders>(env, sw, depth);
 
-    benders->decom(SDDP, 5, false);
-    benders->decom(affine ? LR : SC, 250);
+    cout << "SDDP" << endl;
+    benders->decom(SDDP, 10, false);
+    cout << "SSDMIP" << endl;
+    benders->decom(affine ? LR : SC, 250, false, 1);
+
   } catch (GRBException &e)
   {
     cout << e.getErrorCode() << ' ' << e.getMessage() << '\n';
