@@ -14,13 +14,15 @@ Benders(env, data, depth)
 
   for (int stage = 0; stage != nstages; ++stage)
   {
+    int mask = max(stage - link_depth + 1, 0);
+    for (size_t lvl = 0; lvl != edata.size(); ++lvl)
+      edata[lvl].to_box(lvl <= mask);     // if stage <= mask, then remove linking constraints
+
     epath.push_back(stage + 1);
     edata.resize(epath.size());
 
     int start = max(stage - depth + 1, 0);
     if (stage_specific) start = stage;
-    int mask = max(stage - link_depth + 1, 0);
-
     vector<vpath> sub_paths = enumerate_paths(start, stage);
 
     vnode nodes;
@@ -60,9 +62,6 @@ Benders(env, data, depth)
         nodes.emplace_back(node{move(master), nodes.front().second});
     }
     d_nodes.emplace_back(move(nodes));
-
-    for (size_t lvl = 0; lvl != edata.size(); ++lvl)
-      edata[lvl].to_box(lvl <= mask);     // if stage <= mask, then remove linking constraints
   }
 }
 

@@ -54,6 +54,7 @@ Stagewise ctrl_1D(size_t nstages, size_t n_outcomes)
                   vec{0.0, 1.0},
                   types,
                   senses,
+                  uvec{1},
                   uvec{1}};
 
     //double step = 10.0 / (scenarios[stage] - 1);
