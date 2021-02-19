@@ -18,6 +18,9 @@ public:
 
   Master d_root;
 
+  int d_link_depth;
+
+  spBenders(GRBEnv &env, Stagewise &data, int depth, int link_depth);
   spBenders(GRBEnv &env, Stagewise &data, int depth);
 
   outer_apx const &apx(int stage, int node);

@@ -1,11 +1,12 @@
 #include "spbenders.h"
 
-spBenders::spBenders(GRBEnv &env, Stagewise &data, int depth)
+spBenders::spBenders(GRBEnv &env, Stagewise &data, int depth, int link_depth)
         :
         Benders(env, data, depth),
         d_stage_apx(d_data.nstages() - 1),
         d_nodal_apx(d_data.nstages() - 1),
-        d_root(node_data(0, 0), false, env)
+        d_root(node_data(0, 0), false, env),
+        d_link_depth(link_depth)
 {
   for (int stage = 0; stage != d_nodal_apx.size(); ++stage)
   {
@@ -17,3 +18,8 @@ spBenders::spBenders(GRBEnv &env, Stagewise &data, int depth)
     d_nodal_apx[stage] = stage_apx(n_nodes);
   }
 }
+
+spBenders::spBenders(GRBEnv &env, Stagewise &data, int depth)
+:
+spBenders(env, data, depth, depth + 1)
+{}

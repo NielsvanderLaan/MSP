@@ -27,6 +27,7 @@ Cut Benders::scaled_cut(int stage, int node, const Solution &sol, bool affine, d
   v_enum &gens = init_enums(stage, node, sol);
 
   vector<double> probs = d_data.probs( stage + 1);
+
   do
   {
     ret = Cut(path_nvars);
@@ -37,6 +38,7 @@ Cut Benders::scaled_cut(int stage, int node, const Solution &sol, bool affine, d
       ret += probs[child] * gens[child].opt_cut(rho, affine, tol);
       crho -= probs[child] * gens[child].crho();
     }
+    if (affine) break;
     rho += crho / (1 + ret.d_tau.back());
   } while (crho > tol);
 

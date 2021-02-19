@@ -15,8 +15,7 @@ Cut Enumerator::fdecom(double tol, bool affine, bool reset)
   {
     try
     {
-      cut = solve_mp(affine, 1e8);
-
+      cut = solve_mp(affine, 1e8);  // candidate
       set_sub(cut);
       solve_sp();
 

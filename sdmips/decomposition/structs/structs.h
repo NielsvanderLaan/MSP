@@ -43,6 +43,8 @@ struct Cut
   Cut(double a, vvec b, vdouble t);
   Cut (vector<int> const &nvars);
 
+  void purge();
+
   bool is_proper(Solution const &sol, double tol = 1e-4) const;
   Cut operator*(double scale) const
   {

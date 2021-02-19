@@ -34,10 +34,11 @@ v_enum &spBenders::get_enums(int stage, int node)
   vector<NodeData> nodes;
   nodes.reserve(path.size());
   int box = max(stage - d_depth + 1, 0);
+  int mask = max(stage - d_link_depth + 1, 0);
   for (int lvl = 0; lvl < box; ++lvl)
   {
     nodes.push_back(node_data(lvl, 0));
-    nodes[lvl].to_box();
+    nodes[lvl].to_box(lvl <= mask);
   }
 
   vector<int> sub_path = tail(stage, node);
@@ -50,7 +51,7 @@ v_enum &spBenders::get_enums(int stage, int node)
   for (size_t out = 0; out != d_data.outcomes(future); ++out)
   {
     nodes.back() = node_data(future, out);
-    d_gens.emplace_back(Enumerator{nodes, path, path.size() - 1, leaf, d_env});
+    d_gens.emplace_back(Enumerator{nodes, path, path.size() - 1, mask, leaf, d_env});
   }
 
   for (Enumerator &gen : d_gens)

@@ -62,6 +62,7 @@ Stagewise sclsp(size_t nstages, size_t n_outcomes)
 
   vector<char> senses(ncons, GRB_LESS_EQUAL);
   fill_n(senses.begin(), 3, GRB_EQUAL);
+  arma::uvec fixed {3, 4, 5, 6};
 
   NodeData root{1,
                 1.0,
@@ -74,7 +75,8 @@ Stagewise sclsp(size_t nstages, size_t n_outcomes)
                 rhs,
                 types,
                 senses,
-                {}};
+                fixed,
+                fixed};
 
   Stagewise sw;
   sw.add_node(root);

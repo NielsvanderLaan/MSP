@@ -1,8 +1,9 @@
 #include "enumerator.h"
 
-Enumerator::Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env)
+Enumerator::Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, int mask, bool leaf, GRBEnv &env)
 :
-d_data(nodes[path.back()])
+d_data(nodes[path.back()]),
+d_mask(mask)
 {
   d_mp = new GRBModel(env);
   d_sp = new GRBModel(env);
@@ -18,24 +19,29 @@ d_data(nodes[path.back()])
 
   d_objcon = d_mp->addConstr(d_obj == d_alpha, "obj");
 
+  d_beta.reserve(mp_depth);
   for (size_t stage = 0; stage < mp_depth; ++stage)
   {
     int nvars = nodes[path[stage]].nvars();
-    vector<double> lb(nvars, -GRB_INFINITY);
+    vector<double> lb(nvars, stage < mask ? 0 : -GRB_INFINITY);
+    vector<double> ub(nvars, stage < mask ? 0 : GRB_INFINITY);
     GRBVar *beta  = d_mp->addVars(lb.data(),
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nvars);
-    d_beta.push_back(vvar(beta, beta + nvars));
+                                  ub.data(),
+                                  nullptr,
+                                  nullptr,
+                                  nullptr,
+                                  nvars);
+    d_beta.emplace_back(vvar(beta, beta + nvars));
     delete[] beta;
   }
 
-  for (size_t stage = 0; stage < mp_depth; ++stage)
-    d_tau.push_back(d_mp->addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "tau_" + to_string(stage)));
+  vector<double> ub(mp_depth, GRB_INFINITY);
+  fill_n(ub.begin(), mask, 0.0);
+  GRBVar *tau = d_mp->addVars(nullptr, ub.data(), nullptr, nullptr, nullptr, ub.size());
+  d_tau = vvar(tau, tau + ub.size());
+  delete[] tau;
 
-
+  d_x.reserve(path.size());
   for (int node : path)
   {
     NodeData const &data = nodes[node];
@@ -45,12 +51,13 @@ d_data(nodes[path.back()])
                                   data.d_types.memptr(),
                                  nullptr,
                                   data.nvars());
-    d_x.push_back(vvar(xnode, xnode + data.nvars()));
+    d_x.emplace_back(vvar(xnode, xnode + data.nvars()));
     delete[] xnode;
   }
 
-  for (auto it = path.begin(); it != path.end(); ++it)
-    d_theta.push_back(d_sp->addVar(nodes[*it].d_L,
+  d_theta.reserve(path.size());
+  for (int node : path)
+    d_theta.push_back(d_sp->addVar(nodes[node].d_L,
                                   GRB_INFINITY,
                                   1.0,
                                   GRB_CONTINUOUS));
@@ -89,7 +96,8 @@ d_data(nodes[path.back()])
 Enumerator::Enumerator(const Enumerator &other)
 :
 d_data(other.d_data),
-d_points(other.d_points)
+d_points(other.d_points),
+d_mask(other.d_mask)
 {
   d_mp = new GRBModel(*other.d_mp);
   d_sp = new GRBModel(*other.d_sp);
@@ -142,7 +150,8 @@ d_objcon(other.d_objcon),
 d_sp(other.d_sp),
 d_x(other.d_x),
 d_theta(other.d_theta),
-d_points(other.d_points)
+d_points(other.d_points),
+d_mask(other.d_mask)
 {
   other.d_sp = nullptr;
   other.d_mp = nullptr;

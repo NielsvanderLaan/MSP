@@ -26,9 +26,10 @@ public:
   vvar d_theta;          // theta_1, ..., theta_n
 
   vector<Solution> d_points;    // depth = n
+  int d_mask;            // beta_1,\dots,\beta_mask are forced to zero (idem for tau)
 
   Enumerator() = default;
-  Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, bool leaf, GRBEnv &env);
+  Enumerator(vector<NodeData> const &nodes, vector<int> path, size_t mp_depth, int mask, bool leaf, GRBEnv &env);
   Enumerator(Enumerator const &other);
   Enumerator(Enumerator &&other);
   ~Enumerator();

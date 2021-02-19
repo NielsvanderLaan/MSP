@@ -2,21 +2,13 @@
 
 void dBenders::add_cut(Cut &cut, int stage, int node)
 {
-  if (cut.d_tau.back() > 0)
-    cut.scale();
-
-  get_master(stage, node).push_cut(cut);        // no sharing
+  get_master(stage, node).push_cut(cut);
 
   for (Enumerator &gen : get_enums(stage, node))
     gen.add_cut(cut);
 
   if (stage == 0)     // root problem --> no parents
     return;
-    /*
-  int out = path[stage];
-  for (size_t parent : parents(stage, path))
-    get_enums(stage - 1, parent)[out].add_cut(cut);
-    */
 
   int out = outcome(stage, node);
   for (size_t parent : parents(stage, node))
@@ -26,11 +18,9 @@ void dBenders::add_cut(Cut &cut, int stage, int node)
 
 void dBenders::add_shared_cut(Cut &cut, int stage)
 {
-  if (cut.d_tau.back() > 0)
-    cut.scale();
-
   for (size_t node = 0; node != d_nodes[stage].size(); ++node)
     get_master(stage, node).push_cut(cut);
+
 
   for (Enumerator &gen : get_enums(stage, 0))             // enumerators are shared
     gen.add_cut(cut);

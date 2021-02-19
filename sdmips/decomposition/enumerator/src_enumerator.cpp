@@ -203,12 +203,14 @@ void Enumerator::set_bounds(bool affine, double M)
   d_alpha.set(GRB_DoubleAttr_LB, -M);
   d_alpha.set(GRB_DoubleAttr_UB, M);
 
-  for (vvar &beta : d_beta)
+  assert(d_mask < d_beta.size());
+
+  for (auto it = d_beta.begin() + d_mask; it != d_beta.end(); ++it)
   {
-    vector<double> lb (beta.size(), -M);
-    vector<double> ub (beta.size(), M);
-    d_mp->set(GRB_DoubleAttr_LB, beta.data(), lb.data(), lb.size());
-    d_mp->set(GRB_DoubleAttr_UB, beta.data(), ub.data(), ub.size());
+    vector<double> lb (it->size(), -M);
+    vector<double> ub (it->size(), M);
+    d_mp->set(GRB_DoubleAttr_LB, it->data(), lb.data(), lb.size());
+    d_mp->set(GRB_DoubleAttr_UB, it->data(), ub.data(), ub.size());
   }
 
   set_tau_bounds(affine, M);
@@ -216,8 +218,10 @@ void Enumerator::set_bounds(bool affine, double M)
 
 void Enumerator::set_tau_bounds(bool affine, double M)
 {
-  vector<double> ub(d_tau.size(), affine ? 0.0 : M);
-  d_mp->set(GRB_DoubleAttr_UB, d_tau.data(), ub.data(), ub.size());
+  assert(d_mask < d_tau.size());
+
+  vector<double> ub(d_tau.size() - d_mask, affine ? 0.0 : M);
+  d_mp->set(GRB_DoubleAttr_UB, d_tau.data() + d_mask, ub.data(), ub.size());
 }
 
 void Enumerator::set_mp(bool tight)

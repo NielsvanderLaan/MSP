@@ -11,6 +11,7 @@ class dBenders : public Benders
 public:
   vector<vnode> d_nodes;
 
+  dBenders(GRBEnv &env, Stagewise &data, int depth, int link_depth);
   dBenders(GRBEnv &env, Stagewise &data, int depth);
 
   void add_cut(Cut &cut, int stage, int node) override;

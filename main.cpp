@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
             "\ndepth: " << depth << '\n' <<
             (sparse ? "sparse" : "dense") << '\n' << endl;
 
-    //Stagewise sw = ctrl_1D(nstages, n_outcomes);
-    Stagewise sw = sclsp(nstages, n_outcomes);
+    Stagewise sw = ctrl_1D(nstages, n_outcomes);
+    //Stagewise sw = sclsp(nstages, n_outcomes);
 
     /*
     GRBModel sw_model = sw.lsde(env);
@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
       benders = make_unique<dBenders>(env, sw, depth);
 
     cout << "SDDP" << endl;
-    benders->decom(SDDP, 10, false);
+    benders->decom(SDDP, 5, false);
     cout << "SSDMIP" << endl;
-    benders->decom(affine ? LR : SC, 250, false, 1);
+    benders->decom(affine ? LR : SC, 250, false);
 
   } catch (GRBException &e)
   {

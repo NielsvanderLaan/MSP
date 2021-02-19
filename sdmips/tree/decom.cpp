@@ -13,8 +13,8 @@ void Tree::decom(GRBEnv &env)
     vector<int> path = path_to(node);
 
     d_masters.emplace_back(Master{d_nodes[node], leaf,env});
-    d_enumerators.emplace_back(Enumerator{d_nodes, path,path.size() - 1, leaf,env});
-    d_fenchel.emplace_back(Enumerator {d_nodes, path, path.size(), leaf, env});
+    d_enumerators.emplace_back(Enumerator{d_nodes, path,path.size() - 1, 0, leaf,env});
+    d_fenchel.emplace_back(Enumerator {d_nodes, path, path.size(), 0, leaf, env});
   }
 
 }

@@ -130,6 +130,17 @@ double Cut::abs_max()
   return ret;
 }
 
+void Cut::purge()
+{
+  for (arma::vec &b : d_beta)
+    b.clean(arma::datum::eps);
+
+  arma::vec tau(d_tau);
+  tau.clean(arma::datum::eps);
+  d_tau = vdouble(tau.begin(), tau.end());
+
+}
+
 
 
     // free functions

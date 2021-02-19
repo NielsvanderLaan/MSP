@@ -27,11 +27,11 @@ public:
   arma::Col<char> d_types;
   arma::Col<char> d_senses;
 
-  arma::uvec d_fixed_constrs;
-
+  arma::uvec d_fixed_constrs;   // determinisitic constraints
+  arma::uvec d_box_constrs;     // deterministic non-linking constraints (only x_t, no x_{t - 1})
 
   GRBModel to_model(GRBEnv &env, bool lp = false) const;
-  void to_box(bool wide = false);
+  void to_box(bool wide);
 
   vvar add_to_lsde(GRBModel &lsde, vvar const& parent_vars, double corr = 1.0) const;
 

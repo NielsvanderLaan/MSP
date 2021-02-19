@@ -1,6 +1,6 @@
 #include "dbenders.h"
 
-dBenders::dBenders(GRBEnv &env, Stagewise &data, int depth)
+dBenders::dBenders(GRBEnv &env, Stagewise &data, int depth, int link_depth)
 :
 Benders(env, data, depth)
 {
@@ -19,6 +19,7 @@ Benders(env, data, depth)
 
     int start = max(stage - depth + 1, 0);
     if (stage_specific) start = stage;
+    int mask = max(stage - link_depth + 1, 0);
 
     vector<vpath> sub_paths = enumerate_paths(start, stage);
 
@@ -51,7 +52,7 @@ Benders(env, data, depth)
         for (int out = 0; out != d_data.outcomes(future); ++out)
         {
           edata.back() = node_data(future, out);
-          e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, preleaf, d_env));
+          e_ptr->emplace_back(Enumerator(edata, epath, epath.size() - 1, mask, preleaf, d_env));
         }
 
         nodes.emplace_back(node{move(master), move(e_ptr)});
@@ -60,7 +61,13 @@ Benders(env, data, depth)
     }
     d_nodes.emplace_back(move(nodes));
 
-    for (NodeData &node : edata)
-      node.to_box();
+    for (size_t lvl = 0; lvl != edata.size(); ++lvl)
+      edata[lvl].to_box(lvl <= mask);     // if stage <= mask, then remove linking constraints
   }
 }
+
+
+dBenders::dBenders(GRBEnv &env, Stagewise &data, int depth)
+:
+  dBenders(env, data, depth, depth + 1)
+{}

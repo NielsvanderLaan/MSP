@@ -70,6 +70,9 @@ void Benders::add_cut(Cut &cut, Solution const &sol, bool shared, int stage, int
 {
   if (not shared) assert(node != -1);
 
+  if (cut.d_tau.back() > 0)
+    cut.scale();
+
   if (cut.is_proper(sol))
     shared ? add_shared_cut(cut, stage) : add_cut(cut, stage, node);
 }
