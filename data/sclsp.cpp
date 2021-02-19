@@ -4,13 +4,13 @@ Stagewise sclsp(size_t nstages, size_t n_outcomes)
 {
   int seed = 1234; //random_device{}()
   mt19937 engine(seed);
-  lognormal_distribution<double> log_normal(0.0, 1.0);
+  lognormal_distribution<double> log_normal(0.0, 0.5);
 
   int nvars = 12;
   int ncons = 7;
-  double I_bar = 1000;
+  double I_bar = 250;
   double K = 175;
-  double b_i = 5.0;     // lost sales penalty
+  double b_i = 10.0;     // lost sales penalty
   double inf = GRB_INFINITY;
   inf = 1e5;
   double bigM = 1e6;

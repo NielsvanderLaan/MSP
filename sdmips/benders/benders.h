@@ -6,6 +6,7 @@
 #include "../decomposition/enumerator/enumerator.h"
 #include "families.h"
 #include <random>
+#include <chrono>
 #include <memory>
 
 typedef vector<NodeData> stage_data;

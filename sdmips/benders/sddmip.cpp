@@ -2,11 +2,14 @@
 
 void Benders::decom(Family type, size_t max_iter, bool lp, size_t nsamples)
 {
+  auto t1 = chrono::high_resolution_clock::now();
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion, print more info
   {
     vector<vpath> paths = sample(nsamples);
     vector<vsol> sols = forward(paths, lp);
 
+    double time = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - t1).count() / 1000.0;
+    cout << time << ' ';
     print_root();
     backward(type, sols, paths);
   }

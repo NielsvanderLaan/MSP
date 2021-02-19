@@ -39,7 +39,7 @@ v_enum &spBenders::get_enums(int stage, int node)
   for (int lvl = 0; lvl < box; ++lvl)
     nodes.push_back(node_data(lvl, 0));
 
-  if (mask < box)
+  if (box > 0)
   {
     for (int lvl = 0; lvl < mask; ++lvl)
       nodes[lvl].clear();

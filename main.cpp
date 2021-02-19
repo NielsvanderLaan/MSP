@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
-    */
+     */
 
     unique_ptr<Benders> benders;
     if (sparse)
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     cout << "SDDP" << endl;
     benders->decom(SDDP, 5, false);
     cout << "SSDMIP" << endl;
-    benders->decom(affine ? LR : SC, 5, false);
+    benders->decom(affine ? LR : SC, 250, false);
 
   } catch (GRBException &e)
   {
