@@ -15,13 +15,12 @@ Benders(env, data, depth)
   for (int stage = 0; stage != nstages; ++stage)
   {
     int mask = max(stage - link_depth + 1, 0);
-    /*
     for (size_t lvl = 0; lvl != mask; ++lvl)
-      edata[lvl].clear();       // todo: write nodedata::clear(), also adopt in spBenders::getters()
+      edata[lvl].clear();
     edata[mask].to_box(true);
     for (size_t lvl = mask + 1; lvl != edata.size(); ++lvl)
       edata[lvl].to_box(false);
-    */
+
 
     for (size_t lvl = 0; lvl != edata.size(); ++lvl)
       edata[lvl].to_box(lvl <= mask);     // if stage <= mask, then remove linking constraints
