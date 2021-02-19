@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     cout << "SDDP" << endl;
     benders->decom(SDDP, 5, false);
     cout << "SSDMIP" << endl;
-    benders->decom(affine ? LR : SC, 5, false);
+    benders->decom(affine ? LR : SC, 250, false);
 
   } catch (GRBException &e)
   {
