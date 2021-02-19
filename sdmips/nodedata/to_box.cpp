@@ -12,10 +12,11 @@ void NodeData::to_box(bool wide)
   d_rhs = d_rhs.elem(inds);
   d_senses = d_senses.elem(inds);
 
-  vector<size_t> box_constrs;
+  vector<arma::uword> box_constrs;
   for (int con : d_box_constrs)
-    box_constrs.push_back(distance(d_fixed_constrs.begin(),
-                                   find(d_fixed_constrs.begin(), d_fixed_constrs.end(), con)));
+    box_constrs.push_back(distance(inds.begin(),
+                                   find(inds.begin(), inds.end(), con)));
+
   d_box_constrs = arma::uvec(box_constrs);
 
   d_fixed_constrs = arma::linspace<arma::uvec>(0, ncons() - 1, ncons());
