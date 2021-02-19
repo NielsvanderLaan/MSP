@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     if (sparse)
       benders = make_unique<spBenders>(env, sw, depth);
     else
-      benders = make_unique<dBenders>(env, sw, depth);
+      benders = make_unique<dBenders>(env, sw, depth, 10);
 
     cout << "SDDP" << endl;
     benders->decom(SDDP, 5, false);
