@@ -39,11 +39,15 @@ v_enum &spBenders::get_enums(int stage, int node)
   for (int lvl = 0; lvl < box; ++lvl)
     nodes.push_back(node_data(lvl, 0));
 
-  for (int lvl = 0; lvl < mask; ++lvl)
-    nodes[lvl].clear();
-  nodes[mask].to_box(true);
-  for (int lvl = mask + 1; lvl < box; ++lvl)
-    nodes[lvl].to_box(false);
+  if (mask < box)
+  {
+    for (int lvl = 0; lvl < mask; ++lvl)
+      nodes[lvl].clear();
+    nodes[mask].to_box(true);
+    for (int lvl = mask + 1; lvl < box; ++lvl)
+      nodes[lvl].to_box(false);
+  }
+
 
   vector<int> sub_path = tail(stage, node);
   for (int depth = 0; depth != sub_path.size(); ++depth)

@@ -4,6 +4,7 @@
 #include <vector>
 #include <armadillo>
 #include "gurobi_c++.h"
+#include "assert.h"
 
 using namespace std;
 

@@ -19,7 +19,5 @@ void NodeData::to_box(bool wide)
 
 
   d_box_constrs = arma::uvec(box_constrs);
-
   d_fixed_constrs = arma::linspace<arma::uvec>(0, ncons() - 1, ncons());
-
 }
