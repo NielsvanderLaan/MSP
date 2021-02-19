@@ -8,7 +8,7 @@ Stagewise sclsp(size_t nstages, size_t n_outcomes)
 
   int nvars = 12;
   int ncons = 7;
-  double I_bar = 250;
+  double I_bar = 600;
   double K = 175;
   double b_i = 10.0;     // lost sales penalty
   double inf = GRB_INFINITY;
