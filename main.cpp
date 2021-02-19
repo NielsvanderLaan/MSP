@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
       benders = make_unique<dBenders>(env, sw, depth);
 
     cout << "SDDP" << endl;
-    benders->decom(SDDP, 5, false);
+    //benders->decom(SDDP, 5, false);
     cout << "SSDMIP" << endl;
     benders->decom(affine ? LR : SC, 250, false);
 
