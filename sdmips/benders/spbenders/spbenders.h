@@ -4,7 +4,6 @@
 #include <memory>
 #include "../benders.h"
 
-typedef vector<Cut> outer_apx;
 typedef vector<outer_apx> stage_apx;
 
 class spBenders: public Benders
@@ -31,6 +30,7 @@ public:
   Master &get_master(int stage, int node) override;
   v_enum &get_enums(int stage, int node) override;
 
+  vector<outer_apx> export_cuts() override;
 };
 
 #endif //MSP_SPBENDERS_H

@@ -20,6 +20,8 @@ public:
   Master &get_master(int stage, int node) override;
   v_enum &get_enums(int stage, int node) override;
 
+  vector<outer_apx> export_cuts() override;
+
 };
 
 #endif //MSP_DBENDERS_H

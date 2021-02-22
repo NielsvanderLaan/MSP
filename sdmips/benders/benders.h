@@ -13,6 +13,7 @@ typedef vector<NodeData> stage_data;
 typedef vector<Enumerator> v_enum;
 typedef vector<int> vpath;
 typedef vector<Solution> vsol;
+typedef vector<Cut> outer_apx;
 
 
 
@@ -58,6 +59,9 @@ public:
 
     virtual Master &get_master(int stage, int node) = 0;
     virtual v_enum &get_enums(int stage, int node) = 0;
+
+    void import_cuts(vector<outer_apx> stage_apx);
+    virtual vector<outer_apx> export_cuts() = 0;
 };
 
 #endif //MSP_BENDERS_H

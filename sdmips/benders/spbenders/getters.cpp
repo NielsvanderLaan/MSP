@@ -92,3 +92,8 @@ outer_apx const &spBenders::apx(int stage, int node)
 {
   return d_depth == 0 ? d_nodal_apx[stage].front() : d_nodal_apx[stage][node];
 }
+
+vector<outer_apx> spBenders::export_cuts()
+{
+  return d_stage_apx;
+}
