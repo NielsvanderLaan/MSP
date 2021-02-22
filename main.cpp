@@ -26,14 +26,14 @@ int main(int argc, char *argv[])
             "\ndepth: " << depth << '\n' <<
             (sparse ? "sparse" : "dense") << '\n' << endl;
 
-    //Stagewise sw = ctrl_1D(nstages, n_outcomes);
-    Stagewise sw = sclsp(nstages, n_outcomes);
+    Stagewise sw = ctrl_1D(nstages, n_outcomes);
+    //Stagewise sw = sclsp(nstages, n_outcomes);
 
-
+    /*
     GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
-    return 0;
+    */
 
     unique_ptr<Benders> benders;
     if (sparse)
