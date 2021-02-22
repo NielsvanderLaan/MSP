@@ -35,7 +35,7 @@ void run(GRBEnv &env,
   cout << (sparse ? "Sparse" : "Dense")   << " implementation.\n";
   for (Family const &type : types)
   {
-    cout << to_string(type) << ", " << iter_limits[count] << " iterations\n";
+    cout << to_string(type) << ", " << iter_limits[count] << " iterations.\n";
     benders->decom(type, iter_limits[count], false, samples);
     ++count;
   }
@@ -86,13 +86,13 @@ Args parse(int argc, char *argv[])
 
 Stagewise get_problem(Args const &args)
 {
-  cout << args.problem << ". stages: " << args.nstages << ". outcomes: " << args.n_outcomes << '\n';
+  cout << args.problem << ". stages: " << args.nstages << ". outcomes: " << args.n_outcomes << ".\n";
   if (args.problem == "CTRL")
     return ctrl_1D(args.nstages, args.n_outcomes);
   if (args.problem == "CLSP")
     return sclsp(args.nstages, args.n_outcomes);
 
-  cout << "unknown problem type\n";
+  cout << "unknown problem type.\n";
   return Stagewise{};
 }
 
