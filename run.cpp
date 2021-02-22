@@ -78,7 +78,6 @@ Args parse(int argc, char *argv[])
     iter_limits = vector<int>(ws_types.size() + types.size(), 25);
   for (string const &limit : iters)
     iter_limits.push_back(stoi(limit));
-  cout << "size: " << ws_types.size() << '\n';
 
   assert(iter_limits.size() == ws_types.size() + types.size());
 
