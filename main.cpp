@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     cout << "SDDP" << endl;
     benders->decom(SDDP, 10, false);
     cout << "SDDMIP" << endl;
-    benders->decom(affine ? LR : SC, 250, false, 5);
+    benders->decom(affine ? LR : SC, 100000, false, 5);
 
   } catch (GRBException &e)
   {
