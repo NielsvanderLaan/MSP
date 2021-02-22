@@ -9,8 +9,11 @@ void run(GRBEnv &env,
          bool sparse,
          int samples)
 {
-  cout << "Warm start: stagewise outer approximations.\nDense implementation.\n";
-  cout << "Number of samples: " << samples << '\n';
+  if (not ws_types.empty())
+  {
+    cout << "Warm start: stagewise outer approximations.\nDense implementation.\n";
+    cout << "Number of samples: " << samples << '\n';
+  }
   dBenders warm_start(env, problem, 0);
   int count = 0;
   for (Family const &type : ws_types)
@@ -20,12 +23,12 @@ void run(GRBEnv &env,
     ++count;
   }
 
+
   unique_ptr<Benders> benders;
   if (sparse)
     benders = make_unique<spBenders>(env, problem, depth);
   else
     benders = make_unique<dBenders>(env, problem, depth);
-
   benders->import_cuts(warm_start.export_cuts());
 
   cout << "SDDMIP, depth: " << depth << ".\n";
@@ -70,10 +73,12 @@ Args parse(int argc, char *argv[])
 
   vector<int> iter_limits;
   vector<string> iters = split(find("MAX_ITER=", argc, argv), ",");
+
   if (iters.empty())
     iter_limits = vector<int>(ws_types.size() + types.size(), 25);
   for (string const &limit : iters)
     iter_limits.push_back(stoi(limit));
+  cout << "size: " << ws_types.size() << '\n';
 
   assert(iter_limits.size() == ws_types.size() + types.size());
 
@@ -119,6 +124,9 @@ Family to_type(string const &type)
 
 vector<string> split(string const &line, string const &delim)
 {
+  if (not valid(line))
+    return vector<string>{};
+
   vector<string> ret;
   auto start = 0U;
   auto end = line.find(delim, start);
