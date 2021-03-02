@@ -21,6 +21,22 @@ Master &spBenders::get_master(int stage, int node)
   return *d_master;
 }
 
+Gomory &spBenders::get_gomory(int stage, int out)
+{
+  d_gomory = make_unique<Gomory>(d_env,
+                                 node_data(stage, out),
+                                 stage == d_data.nstages() - 1);
+
+  if (stage < d_stage_apx.size())
+  {
+    for (Cut const &cut : d_stage_apx[stage])
+      d_gomory->add_cut(cut);
+  }
+
+  return *d_gomory;
+}
+
+
 v_enum &spBenders::get_enums(int stage, int node)
 {
   d_gens.clear();
@@ -97,3 +113,5 @@ vector<outer_apx> spBenders::export_cuts()
 {
   return d_stage_apx;
 }
+
+

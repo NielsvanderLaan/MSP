@@ -1,20 +1,22 @@
 #include "benders.h"
 
-void Benders::decom(Family type, size_t max_iter, bool lp, size_t nsamples)
+void Benders::decom(Family type, size_t max_iter, bool lp, size_t nsamples, size_t eval)
 {
   auto t1 = chrono::high_resolution_clock::now();
+  double UB = GRB_INFINITY;
   for (int iter = 0; iter != max_iter; ++iter)                    // TODO: stopping criterion, print more info
   {
     vector<vpath> paths = sample(nsamples);
     vector<vsol> sols = forward(paths, lp);
+    UB = min(UB, ub(eval));
 
     double time = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - t1).count() / 1000.0;
-    cout << time << ' ';
-    print_root();
+    cout << time << ' ' << lb() << ' ' << UB << endl;
+
     backward(type, sols, paths);
   }
 
-  print_root();
+  cout << lb() << endl;
 }
 
 
@@ -27,7 +29,7 @@ vector<vsol> Benders::forward(vector<vpath> const &paths, bool lp)
   {
     vsol sols;
     sols.reserve(d_data.nstages() - 1);
-    for (int stage = 0; stage != d_data.nstages() - 1; ++stage)
+    for (int stage = 0; stage != path.size(); ++stage)
     {
       Master &mp = get_master(stage, master_idx(stage, path));
       if (stage > 0)
@@ -38,6 +40,7 @@ vector<vsol> Benders::forward(vector<vpath> const &paths, bool lp)
     }
     ret.emplace_back(move(sols));
   }
+
   return ret;
 }
 
@@ -80,9 +83,29 @@ void Benders::add_cut(Cut &cut, Solution const &sol, bool shared, int stage, int
     shared ? add_shared_cut(cut, stage) : add_cut(cut, stage, node);
 }
 
-void Benders::print_root()
+double Benders::lb()
 {
   Master &root = get_master(0, 0);
   root.solve_mip();
-  cout << root.mip_obj() << endl;
+  return root.mip_obj();
+}
+
+double Benders::ub(size_t nsamples)
+{
+  size_t nstages = d_data.nstages();
+  vector<vpath> paths = sample(nsamples, nstages);
+
+  nsamples = paths.size();
+  vector<vsol> sols = forward(paths, false);
+
+  arma::vec ubs(nsamples, arma::fill::zeros);
+  for (size_t sample = 0; sample != nsamples; ++sample)
+  {
+    for (int stage = 0; stage != nstages; ++stage)
+      ubs[sample] += arma::dot(node_data(stage, paths[sample][stage]).d_costs,
+                               sols[sample][stage].d_x[stage]);
+  }
+
+  return mean(ubs) + 2.0 * arma::stddev(ubs) / sqrt(nsamples);
+
 }

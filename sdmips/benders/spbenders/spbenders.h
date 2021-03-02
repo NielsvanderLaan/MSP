@@ -13,6 +13,7 @@ public:
   vector<outer_apx> d_stage_apx;
 
   unique_ptr<Master> d_master;
+  unique_ptr<Gomory> d_gomory;
   v_enum d_gens;
 
   Master d_root;
@@ -29,6 +30,7 @@ public:
 
   Master &get_master(int stage, int node) override;
   v_enum &get_enums(int stage, int node) override;
+  Gomory &get_gomory(int stage, int out) override;
 
   vector<outer_apx> export_cuts() override;
 };

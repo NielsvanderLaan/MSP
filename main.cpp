@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
     GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
-    */
+     */
+
 
   } catch (GRBException &e)
   {

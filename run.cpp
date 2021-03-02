@@ -10,10 +10,9 @@ void run(GRBEnv &env,
          int samples)
 {
   if (not ws_types.empty())
-  {
-    cout << "Warm start: stagewise outer approximations.\nDense implementation.\n";
-    cout << "Number of samples: " << samples << '\n';
-  }
+    cout << "Warm start: stagewise outer approximations.\nDense implementation.\n"
+         << "Number of samples: " << samples << '\n';
+
   dBenders warm_start(env, problem, 0);
   int count = 0;
   for (Family const &type : ws_types)
@@ -22,7 +21,6 @@ void run(GRBEnv &env,
     warm_start.decom(type, iter_limits[count], false, samples);
     ++count;
   }
-
 
   unique_ptr<Benders> benders;
   if (sparse)
@@ -79,6 +77,7 @@ Args parse(int argc, char *argv[])
   for (string const &limit : iters)
     iter_limits.push_back(stoi(limit));
 
+
   assert(iter_limits.size() == ws_types.size() + types.size());
 
   return Args{problem, nstages, n_outcomes, ws_types, types, depth, sparse, samples, iter_limits};
@@ -95,8 +94,6 @@ Stagewise get_problem(Args const &args)
   cout << "unknown problem type.\n";
   return Stagewise{};
 }
-
-
 
 
 string find(string const &flag, int argc, char *argv[])
@@ -118,6 +115,10 @@ Family to_type(string const &type)
     return LR;
   if (type == "SC")
    return SC;
+  if (type == "LBDA_ZEROS")
+    return LBDA_ZEROS;
+  if (type == "LBDA_RC")
+    return LBDA_RC;
   return DEFAULT;
 }
 

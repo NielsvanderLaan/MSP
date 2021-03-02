@@ -4,6 +4,8 @@ dBenders::dBenders(GRBEnv &env, Stagewise &data, int depth, int link_depth)
 :
 Benders(env, data, depth)
 {
+  init_gomory(env);   // TODO: conditional
+
   bool stage_specific = (depth == 0);
 
   size_t nstages = d_data.nstages();

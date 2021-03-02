@@ -3,6 +3,7 @@
 
 #include "gurobi_c++.h"
 #include "assert.h"
+#include <memory>
 
 #include "../../nodedata/nodedata.h"
 #include "../structs/structs.h"
@@ -47,7 +48,7 @@ public:
 
     // getters
   Solution forward();
-  double theta_n();
+  double theta_n() const;
   bool integer();
 
   arma::vec lp_xvals();
@@ -56,9 +57,11 @@ public:
   arma::vec mip_xvals();
   double mip_theta();
 
-  arma::vec multipliers();
-  double mip_obj();
-  double lp_obj();
+  arma::vec multipliers(bool cuts = true);
+  vector<int> vbasis() const;
+  vector<int> cbasis() const;
+  double mip_obj() const;
+  double lp_obj() const;
 };
 
 #endif //MSP_MASTER_H

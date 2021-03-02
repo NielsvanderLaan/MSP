@@ -18,9 +18,14 @@ void dBenders::add_cut(Cut &cut, int stage, int node)
 
 void dBenders::add_shared_cut(Cut &cut, int stage)
 {
+  if (not d_gomory.empty())
+  {
+    for (Gomory &gom : d_gomory[stage])
+      gom.add_cut(cut);
+  }
+
   for (size_t node = 0; node != d_nodes[stage].size(); ++node)
     get_master(stage, node).push_cut(cut);
-
 
   for (Enumerator &gen : get_enums(stage, 0))             // enumerators are shared
     gen.add_cut(cut);

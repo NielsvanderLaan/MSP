@@ -10,6 +10,11 @@ v_enum &dBenders::get_enums(int stage, int node)
   return *d_nodes[stage][node].second;
 }
 
+Gomory &dBenders::get_gomory(int stage, int out)
+{
+  return d_gomory[stage][out];
+}
+
 vector<outer_apx> dBenders::export_cuts()
 {
   assert(d_depth == 0);

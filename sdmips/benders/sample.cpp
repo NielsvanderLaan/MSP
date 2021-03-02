@@ -1,12 +1,13 @@
 #include "benders.h"
 
-vector<vpath> Benders::sample(size_t nsamples)
+vector<vpath> Benders::sample(size_t nsamples, size_t nstages)
 {
+  if (nstages == -1) nstages = d_data.nstages() - 1;
   vector<vpath> ret(nsamples);
   for (vpath &path : ret)
-    path.reserve(d_data.nstages() - 1);   // final stage is not important
+    path.reserve(nstages);
 
-  for (size_t stage = 0; stage != d_data.nstages() - 1; ++stage)
+  for (size_t stage = 0; stage != nstages; ++stage)
   {
     vector<double> prob = d_data.probs(stage);
     discrete_distribution<int> uni(prob.begin(), prob.end());

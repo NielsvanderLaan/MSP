@@ -50,7 +50,7 @@ Solution Master::forward()
   return sol;
 }
 
-double Master::theta_n()
+double Master::theta_n() const
 {
   return d_theta_n;
 }
@@ -60,10 +60,13 @@ bool Master::integer()
   return is_integer(lp_xvals(), d_data.d_types);
 }
 
-arma::vec Master::multipliers()
+arma::vec Master::multipliers(bool cuts)
 {
+  int ncons = d_data.ncons();
+  if (cuts)
+    ncons += d_cuts.size();
+
   GRBConstr *cons = d_lp->getConstrs();
-  int ncons = d_data.ncons() + d_cuts.size();
 
   double *pi = d_lp->get(GRB_DoubleAttr_Pi, cons, ncons);
   arma::vec ret(pi, ncons);
@@ -73,13 +76,39 @@ arma::vec Master::multipliers()
   return ret;
 }
 
-double Master::lp_obj()
+vector<int> Master::vbasis() const
+{
+  int nvars = d_data.nvars();
+  int *vb = d_lp->get(GRB_IntAttr_VBasis, d_lp_xvars.data(), nvars);
+
+  vector<int> ret(nvars + 1);
+  copy_n(vb, nvars, ret.begin());
+  ret.back() = d_lp_theta.get(GRB_IntAttr_VBasis);
+
+  return ret;
+}
+
+vector<int> Master::cbasis() const
+{
+  GRBConstr *cons = d_lp->getConstrs();
+  size_t len = d_data.ncons() + d_cuts.size();
+  int *cb = d_lp->get(GRB_IntAttr_CBasis, cons, len);
+
+  vector<int> ret(cb, cb + len);
+  delete[] cb;
+  delete[] cons;
+
+  return ret;
+}
+
+
+double Master::lp_obj() const
 {
   return d_lp->get(GRB_DoubleAttr_ObjBound);
 }
 
 
-double Master::mip_obj()
+double Master::mip_obj() const
 {
   return d_mip->get(GRB_DoubleAttr_ObjBound);
 }

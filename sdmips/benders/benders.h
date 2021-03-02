@@ -4,6 +4,7 @@
 #include "../stagewise/stagewise.h"
 #include "../decomposition/master/master.h"
 #include "../decomposition/enumerator/enumerator.h"
+#include "../decomposition/gomory/gomory.h"
 #include "families.h"
 #include <random>
 #include <chrono>
@@ -28,17 +29,18 @@ public:
     Benders(GRBEnv &env, Stagewise &data, int depth);
     virtual ~Benders() = default;
 
-    void decom(Family type, size_t max_iter = 100, bool lp = false, size_t nsamples = 30);
+    void decom(Family type, size_t max_iter = 100, bool lp = false, size_t nsamples = 30, size_t eval = 100);
     vector<vsol> forward(vector<vpath> const &paths, bool lp);
     void backward(Family type, vector<vsol> const &sols, vector<vpath> const &paths);
 
-    vector<vpath> sample(size_t nsamples);
+    vector<vpath> sample(size_t nsamples, size_t nstages = -1);
     vector<vpath> enumerate_paths(int start, int end, vector<vpath> const &paths = vector<vpath>(1));
     vector<vpath> enumerate_paths();
 
     Cut compute_cut(Family type, Solution const &sol, int stage, int node = 0);
     Cut sddp_cut(int stage, Solution const &sol);
     Cut scaled_cut(int stage, int node, Solution const &sol, bool affine, double tol = 1e-4);
+    Cut lbda_cut(int stage, Solution const &sol, Alpha type, arma::vec alpha = {});
 
     v_enum &init_enums(int stage, int node, Solution const &sol);
 
@@ -52,13 +54,15 @@ public:
     vector<int> children(int stage, int node) const;
     vector<int> tail(int stage, int node) const;
 
-    void print_root();
+    double lb();
+    double ub(size_t nsamples);
 
     virtual void add_cut(Cut &cut, int stage, int node) = 0;
     virtual void add_shared_cut(Cut &cut, int stage) = 0;
 
     virtual Master &get_master(int stage, int node) = 0;
     virtual v_enum &get_enums(int stage, int node) = 0;
+    virtual Gomory &get_gomory(int stage, int out) = 0;
 
     void import_cuts(vector<outer_apx> stage_apx);
     virtual vector<outer_apx> export_cuts() = 0;
