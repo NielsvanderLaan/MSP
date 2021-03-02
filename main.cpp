@@ -16,14 +16,15 @@ int main(int argc, char *argv[])
     Args args = parse(argc, argv);
     Stagewise sw = get_problem(args);
 
-    run(env,sw, args.ws_types, args.types, args.iter_limits, args.depth, args.sparse, args.samples);
 
     /*
     GRBModel sw_model = sw.lsde(env);
     sw_model.set(GRB_IntParam_OutputFlag, 1);
     sw_model.optimize();
-     */
+    return 0;
+    */
 
+    run(env,sw, args.ws_types, args.types, args.iter_limits, args.depth, args.sparse, args.samples);
 
   } catch (GRBException &e)
   {

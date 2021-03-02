@@ -29,7 +29,7 @@ public:
     Benders(GRBEnv &env, Stagewise &data, int depth);
     virtual ~Benders() = default;
 
-    void decom(Family type, size_t max_iter = 100, bool lp = false, size_t nsamples = 30, size_t eval = 100);
+    void decom(Family type, size_t max_iter = 100, bool lp = false, size_t nsamples = 30, size_t eval = 1000);
     vector<vsol> forward(vector<vpath> const &paths, bool lp);
     void backward(Family type, vector<vsol> const &sols, vector<vpath> const &paths);
 

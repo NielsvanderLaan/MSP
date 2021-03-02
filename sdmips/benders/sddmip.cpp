@@ -106,6 +106,7 @@ double Benders::ub(size_t nsamples)
                                sols[sample][stage].d_x[stage]);
   }
 
-  return mean(ubs) + 2.0 * arma::stddev(ubs) / sqrt(nsamples);
+  cout << "stddev: " << arma::stddev(ubs) << '\n';
 
+  return mean(ubs) + 3.0 * arma::stddev(ubs) / sqrt(nsamples);
 }
