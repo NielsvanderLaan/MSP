@@ -91,7 +91,7 @@ vector<int> Master::vbasis() const
 vector<int> Master::cbasis() const
 {
   GRBConstr *cons = d_lp->getConstrs();
-  size_t len = d_data.ncons() + d_cuts.size();
+  int len = d_data.ncons() + d_cuts.size();
   int *cb = d_lp->get(GRB_IntAttr_CBasis, cons, len);
 
   vector<int> ret(cb, cb + len);

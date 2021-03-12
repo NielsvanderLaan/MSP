@@ -71,7 +71,7 @@ Stagewise sclsp(size_t nstages, size_t n_outcomes)
                 lb,
                 ub,
                 Amat,
-                sp_mat(),
+                sp_mat(nvars, ncons),
                 rhs,
                 types,
                 senses,

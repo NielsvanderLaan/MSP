@@ -18,6 +18,7 @@ Gomory::Gomory(Gomory const &other)
 :
 d_model(make_unique<GRBModel>(*other.d_model)),
 d_data(other.d_data),
+d_cuts(other.d_cuts),
 d_intercepts(other.d_intercepts)
 {
   d_theta = d_model->getVarByName("theta");
@@ -28,6 +29,7 @@ Gomory::Gomory(Gomory &&other)
 d_model(move(other.d_model)),
 d_data(other.d_data),
 d_theta(move(other.d_theta)),
+d_cuts(move(other.d_cuts)),
 d_intercepts(move(other.d_intercepts))
 {}
 
@@ -40,6 +42,7 @@ void Gomory::solve()
 
 void Gomory::add_cut(Cut const &cut)
 {
+  d_cuts.push_back(cut);
   d_intercepts.push_back(cut.d_alpha);
 
   GRBVar *xvars = d_model->getVars();

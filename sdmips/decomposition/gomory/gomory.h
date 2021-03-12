@@ -17,6 +17,7 @@ public:
   unique_ptr<GRBModel> d_model;
   NodeData const &d_data;
   GRBVar d_theta;
+  vector<Cut> d_cuts;
   vector<double> d_intercepts;
 
   Gomory(GRBEnv &env, NodeData const &data, bool leaf);
