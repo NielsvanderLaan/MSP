@@ -11,7 +11,7 @@ class Stagewise
 public:
   vector<stage_data> d_stages;
 
-  void add_node(NodeData &data);
+  void add_node(NodeData const &data);
 
   GRBModel lsde(GRBEnv &env);
 

@@ -88,6 +88,12 @@ Cut Benders::lbda_cut(int stage, const Solution &sol, Alpha type, arma::vec alph
       alpha = node_data(future, out).d_Bmat.t() * sol.d_x.back();
 
     gom.update(node_data(future, out).d_rhs - alpha, sub.vbasis(), sub.cbasis());
+    /*
+     * correctly takes into account deterministic constraints, but upper/lower bounds on
+     * variables should be handled carefully (including theta: d_L).
+     */
+    //gom.update(node_data(future, out).d_rhs - alpha, sub.basis());
+
     gom.solve();
 
     auto lambda = sub.multipliers(false);

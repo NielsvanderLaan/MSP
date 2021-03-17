@@ -1,8 +1,7 @@
 #include "stagewise.h"
 
-void Stagewise::add_node(NodeData  &data)
+void Stagewise::add_node(NodeData const &data)
 {
-  data.bnds_to_cons();
   int stage = data.d_stage;
   if (d_stages.size() < stage)
     d_stages.resize(stage);

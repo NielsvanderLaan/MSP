@@ -76,6 +76,44 @@ arma::vec Master::multipliers(bool cuts)
   return ret;
 }
 
+vector<int> Master::basis() const
+{
+  GRBmodel *cm = d_lp->Cmodel;
+  int len = d_data.ncons() + d_cuts.size();
+
+  int bhead[len];
+  fill_n(bhead, len, -1);
+  GRBgetBasisHead(cm, bhead);
+
+  int Brow_inds[len];
+  double Brow_vals[len];
+  GRBsvec Brow{len, Brow_inds, Brow_vals};
+
+  int inds[1];
+  double vals[1] = {1.0};
+  GRBsvec e_i{1, inds, vals};
+
+  vector<int> ret;
+  ret.reserve(len);
+
+  for (int row = 0; row != len; ++row)
+  {
+    e_i.ind[0] = row;
+    GRBBSolve(cm, &e_i, &Brow);
+
+    for (int nz = 0; nz != Brow.len; ++nz)
+    {
+      if (Brow.ind[nz] < d_data.d_rn_constrs)
+      {
+        ret.push_back(bhead[row]);
+        continue;
+      }
+    }
+  }
+
+  return ret;
+}
+
 vector<int> Master::vbasis() const
 {
   int nvars = d_data.nvars();

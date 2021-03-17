@@ -17,7 +17,6 @@ public:
   unique_ptr<GRBModel> d_model;
   NodeData const &d_data;
   GRBVar d_theta;
-  vector<Cut> d_cuts;
   vector<double> d_intercepts;
 
   Gomory(GRBEnv &env, NodeData const &data, bool leaf);
@@ -26,6 +25,7 @@ public:
 
   void solve();
   double obj() const;   // lambda^T(omega - alpha) + psi(omega - alpha)
+  void update(arma::vec rhs, vector<int> const &basis);
   void update(arma::vec rhs, vector<int> const &vbasis, vector<int> const &cbasis);
   void add_cut(Cut const &cut);
 };

@@ -30,6 +30,7 @@ public:
 
   arma::uvec d_fixed_constrs;   // deterministic constraints
   arma::uvec d_box_constrs;     // deterministic non-linking constraints (only x_t, no x_{t - 1})
+  size_t d_rn_constrs;
 
   GRBModel to_model(GRBEnv &env, bool lp = false) const;
   void to_box(bool wide);

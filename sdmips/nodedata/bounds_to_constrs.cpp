@@ -5,6 +5,7 @@ void NodeData::bnds_to_cons()
   arma::mat Amat(d_Amat);
   arma::mat Bmat(d_Bmat);
 
+
   for (size_t var = 0; var != nvars(); ++var)
   {
     double lb = d_lb[var];
@@ -54,10 +55,6 @@ void NodeData::bnds_to_cons()
 
   d_Amat = arma::sp_mat(Amat);
   d_Bmat = arma::sp_mat(Bmat);
-  cout << "b\n";
-  d_Amat.print();
-  d_Bmat.print();
-  cout << "a\n";
 
   fill_n(d_lb.begin(), nvars(), 0.0);
   fill_n(d_ub.begin(), nvars(), GRB_INFINITY);

@@ -71,18 +71,19 @@ Stagewise sclsp(size_t nstages, size_t n_outcomes)
                 lb,
                 ub,
                 Amat,
-                sp_mat(nvars, ncons),
+                Bmat,
                 rhs,
                 types,
                 senses,
                 fixed,
-                fixed};
+                fixed,
+                Demand.n_rows};
 
   Stagewise sw;
+  root.bnds_to_cons();
   sw.add_node(root);
 
   NodeData sub = root;
-  sub.d_Bmat = Bmat;
   sub.d_prob = 1.0 / n_outcomes;
 
   for (size_t stage = 1; stage != nstages; ++stage)

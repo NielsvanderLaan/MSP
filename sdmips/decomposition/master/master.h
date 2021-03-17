@@ -58,6 +58,7 @@ public:
   double mip_theta();
 
   arma::vec multipliers(bool cuts = true);
+  vector<int> basis() const;
   vector<int> vbasis() const;
   vector<int> cbasis() const;
   double mip_obj() const;

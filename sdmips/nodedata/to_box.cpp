@@ -7,8 +7,6 @@ void NodeData::to_box(bool wide)
 
   arma::uvec inds = wide ? d_box_constrs : d_fixed_constrs;
 
-  d_Bmat.print();
-  inds.print();
 
   d_Amat = d_Amat.cols(inds);
   d_Bmat = d_Bmat.cols(inds);

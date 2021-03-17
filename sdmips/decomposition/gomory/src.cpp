@@ -18,7 +18,6 @@ Gomory::Gomory(Gomory const &other)
 :
 d_model(make_unique<GRBModel>(*other.d_model)),
 d_data(other.d_data),
-d_cuts(other.d_cuts),
 d_intercepts(other.d_intercepts)
 {
   d_theta = d_model->getVarByName("theta");
@@ -28,8 +27,7 @@ Gomory::Gomory(Gomory &&other)
 :
 d_model(move(other.d_model)),
 d_data(other.d_data),
-d_theta(move(other.d_theta)),
-d_cuts(move(other.d_cuts)),
+d_theta(other.d_theta),
 d_intercepts(move(other.d_intercepts))
 {}
 
@@ -42,7 +40,6 @@ void Gomory::solve()
 
 void Gomory::add_cut(Cut const &cut)
 {
-  d_cuts.push_back(cut);
   d_intercepts.push_back(cut.d_alpha);
 
   GRBVar *xvars = d_model->getVars();
@@ -53,6 +50,59 @@ void Gomory::add_cut(Cut const &cut)
   d_model->addConstr(lhs >= cut.d_alpha);
   delete[] xvars;
   d_model->update();
+}
+
+void Gomory::update(arma::vec rhs, vector<int> const &basis)
+{
+  arma::vec lb = d_data.d_lb;
+  int ncons = rhs.size();
+  arma::vec cut_rhs(d_intercepts);
+
+  d_theta.set(GRB_DoubleAttr_LB, d_data.d_L);
+
+  for (int basic : basis)
+  {
+    if (basic < lb.size())
+    {
+      lb[basic] = -GRB_INFINITY;
+      continue;
+    }
+
+    basic -= lb.size();
+    if (basic == 0)     // basic corresponds to theta
+    {
+      d_theta.set(GRB_DoubleAttr_LB, -GRB_INFINITY);
+      continue;
+    }
+
+    --basic;
+    if (basic < ncons)     // basic corresponds to a slack variable of a constraint
+    {
+      switch (d_data.d_senses[basic])
+      {
+        case GRB_EQUAL:
+          break;
+        case GRB_LESS_EQUAL:
+          rhs[basic] = GRB_INFINITY;
+          break;
+        case GRB_GREATER_EQUAL:
+          rhs[basic] = -GRB_INFINITY;
+      }
+      continue;
+    }
+
+    basic -= ncons;
+    cut_rhs[basic] = -GRB_INFINITY;
+  }
+
+  GRBVar* vars = d_model->getVars();
+  d_model->set(GRB_DoubleAttr_LB, vars, lb.memptr(), lb.n_elem);
+  delete[] vars;
+
+  GRBConstr* cons = d_model->getConstrs();
+  d_model->set(GRB_DoubleAttr_RHS, cons, rhs.memptr(), ncons);
+  d_model->set(GRB_DoubleAttr_RHS, cons + ncons, cut_rhs.memptr(), cut_rhs.size());
+  delete[] cons;
 }
 
 void Gomory::update(arma::vec rhs, vector<int> const &vbasis, vector<int> const &cbasis)
@@ -75,14 +125,16 @@ void Gomory::update(arma::vec rhs, vector<int> const &vbasis, vector<int> const 
     }
   }
 
-  int ncuts = d_intercepts.size();
-  arma::vec cut_rhs(ncuts);
-  for (size_t cut = 0; cut != ncuts; ++cut)
-    cut_rhs[cut] = cbasis[ncons + cut] ? d_intercepts[cut] : -GRB_INFINITY;
+  arma::vec cut_rhs(d_intercepts);
+  for (size_t cut = 0; cut != cut_rhs.size(); ++cut)
+  {
+    if (not cbasis[ncons + cut])
+      cut_rhs[cut] = -GRB_INFINITY;
+  }
 
   GRBConstr* cons = d_model->getConstrs();
   d_model->set(GRB_DoubleAttr_RHS, cons, rhs.memptr(), ncons);
-  d_model->set(GRB_DoubleAttr_RHS, cons + ncons, cut_rhs.memptr(), ncuts);
+  d_model->set(GRB_DoubleAttr_RHS, cons + ncons, cut_rhs.memptr(), cut_rhs.size());
   delete[] cons;
 
 
